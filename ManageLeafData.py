@@ -49,13 +49,16 @@ class ManageLeafData:
 
     def getImageNameList(path: str) -> list:
         return [f for f in listdir(path) if isfile(join(path, f))]
+    
+    def readSpeciesJsonFile() -> dict:
+        with open(ManageLeafData.__species_JFile, 'r') as JFile:
+            data = json.load(JFile)
+        return data
 
     def mappingLeafData(path: str) -> list:
         imageNameLst = ManageLeafData.getImageNameList(path)
         mappedRows = list()
-        
-        with open(ManageLeafData.__species_JFile, 'r') as Jfile:
-            _classes = json.load(Jfile)
+        classes = ManageLeafData.readSpeciesJsonFile()
         
         for imageName in imageNameLst:
             row = list()
@@ -66,15 +69,15 @@ class ManageLeafData:
             plt.show()
 
             # Display classes
-            for index in range(len(_classes)):
+            for index in range(len(classes)):
                 index = str(index)
-                print(index, ")", _classes[index][0], "/", _classes[index][1])
+                print(index, ")", classes[index][0], "/", classes[index][1])
 
             choice = input("\nEnter choice: ")
             
             row.append(imageName)
-            row.append(_classes[choice][0])
-            row.append(_classes[choice][1])
+            row.append(classes[choice][0])
+            row.append(classes[choice][1])
             row.append(int(choice))
 
             mappedRows.append(row)
@@ -94,3 +97,4 @@ class ManageLeafData:
         finally:
             csvwriter.writerows(rows)
             csvfile.close()
+
