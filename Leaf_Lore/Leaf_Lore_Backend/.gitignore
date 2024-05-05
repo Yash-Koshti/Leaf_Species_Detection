@@ -1,0 +1,6 @@
+LeafLore_backend_flow_1.png
+manual_api_reqs.py
+
+.vscode/
+*.pyc
+__pycache__/

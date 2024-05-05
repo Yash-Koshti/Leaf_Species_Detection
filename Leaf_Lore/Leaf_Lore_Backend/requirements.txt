@@ -1,0 +1,6 @@
+fastapi[all]
+sqlalchemy
+psycopg2
+numpy
+pandas
+scikit-learn
