@@ -4,3 +4,5 @@ manual_api_reqs.py
 .vscode/
 *.pyc
 __pycache__/
+
+.env
