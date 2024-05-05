@@ -6,3 +6,4 @@ manual_api_reqs.py
 __pycache__/
 
 .env
+.env.*
