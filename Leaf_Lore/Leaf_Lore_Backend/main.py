@@ -1,8 +1,7 @@
-from fastapi import FastAPI
-
 import schemas
 from config import engine
 from controllers import mapped_image_controller, specie_controller, user_controller
+from fastapi import FastAPI
 
 schemas.Base.metadata.create_all(bind=engine)
 
@@ -15,7 +14,7 @@ async def read_root():
         "Hello": "This is Leaf Lore server! I'm ready to detect leaves!",
         "routes": {
             "user": [
-                "POST /user/create_user",
+                "POST /user/register",
                 "GET /user/login",
                 "POST /user/update_user",
                 "DELETE /user/delete_user",

@@ -1,6 +1,7 @@
-from typing import Optional, Generic, TypeVar, List
-from pydantic import BaseModel, Field
 from enum import Enum
+from typing import Generic, List, Optional, TypeVar
+
+from pydantic import BaseModel, Field
 
 T = TypeVar("T")
 
@@ -17,6 +18,8 @@ class User(BaseModel):
     email: Optional[str] = None
     password: Optional[str] = None
     role: Optional[Role] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -38,6 +41,8 @@ class MappedImage(BaseModel):
     image_name: Optional[str] = None
     specie_id: Optional[int] = None
     user_id: Optional[int] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -59,6 +64,8 @@ class Specie(BaseModel):
     class_number: Optional[int] = None
     common_name: Optional[str] = None
     scientific_name: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
 
     class Config:
         from_attributes = True
