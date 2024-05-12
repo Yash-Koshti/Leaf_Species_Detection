@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "51990264355",
+    "project_id": "leaf-lore",
+    "storage_bucket": "leaf-lore.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:51990264355:android:10d7d5d0681e614fa50f96",
+        "android_client_info": {
+          "package_name": "com.leaf_lore.leaf_lore_frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDf5AS6ucZxlbw6RLBJJ9eibAa1QwnH95U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

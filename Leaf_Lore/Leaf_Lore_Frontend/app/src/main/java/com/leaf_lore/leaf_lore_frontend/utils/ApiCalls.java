@@ -26,6 +26,8 @@ public class ApiCalls {
 
 	private static ArrayList<Specie> species;
 
+	private static int requestCount = 0;
+
 	public static void fetchAllSpecies(Context context, Spinner spinCommonName, Spinner spinScientificName) {
 		RequestQueue queue = Volley.newRequestQueue(context);
 
@@ -38,7 +40,6 @@ public class ApiCalls {
 							Log.d("api", "Response: " + response);
 							JSONObject responseObject = new JSONObject(response);
 							JSONArray result = responseObject.getJSONArray("result");
-							Log.d("api", "Result: " + result);
 							for (int i = 0; i < result.length(); i++) {
 								JSONObject specieObject = result.getJSONObject(i);
 								species.add(
@@ -62,6 +63,13 @@ public class ApiCalls {
 					@Override
 					public void onErrorResponse(VolleyError error) {
 						Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
+						requestCount++;
+						if (requestCount < 3) {
+							fetchAllSpecies(context, spinCommonName, spinScientificName);
+						} else if (requestCount == 3) {
+							Toast.makeText(context, "No response from server!", Toast.LENGTH_LONG).show();
+							requestCount = 0;
+						}
 					}
 				});
 
