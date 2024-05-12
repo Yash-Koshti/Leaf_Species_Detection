@@ -20,63 +20,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ApiCalls {
-	private static final String BASE_URL = "https://leaf-lore-server.onrender.com";
-	private static final String ALL_SPECIES = "/specie/all_species";
+class ApiCallsSupport {
+	private final Context context;
 
-	private static ArrayList<Specie> species;
-
-	private static int requestCount = 0;
-
-	public static void fetchAllSpecies(Context context, Spinner spinCommonName, Spinner spinScientificName) {
-		RequestQueue queue = Volley.newRequestQueue(context);
-
-		StringRequest stringRequest = new StringRequest(Request.Method.GET, BASE_URL + ALL_SPECIES,
-				new Response.Listener<String>() {
-					@Override
-					public void onResponse(String response) {
-						species = new ArrayList<>();
-						try {
-							Log.d("api", "Response: " + response);
-							JSONObject responseObject = new JSONObject(response);
-							JSONArray result = responseObject.getJSONArray("result");
-							for (int i = 0; i < result.length(); i++) {
-								JSONObject specieObject = result.getJSONObject(i);
-								species.add(
-										new Specie(
-												specieObject.getInt("id"),
-												specieObject.getInt("class_number"),
-												specieObject.getString("common_name"),
-												specieObject.getString("scientific_name"),
-												specieObject.getString("created_at"),
-												specieObject.getString("updated_at")));
-							}
-						} catch (JSONException e) {
-							Log.e("api", "onResponseError: " + e.getMessage());
-							e.printStackTrace();
-						}
-
-						populateSpinner(context, spinCommonName, spinScientificName);
-					}
-				},
-				new Response.ErrorListener() {
-					@Override
-					public void onErrorResponse(VolleyError error) {
-						Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
-						requestCount++;
-						if (requestCount < 3) {
-							fetchAllSpecies(context, spinCommonName, spinScientificName);
-						} else if (requestCount == 3) {
-							Toast.makeText(context, "No response from server!", Toast.LENGTH_LONG).show();
-							requestCount = 0;
-						}
-					}
-				});
-
-		queue.add(stringRequest);
+	public ApiCallsSupport(Context context) {
+		this.context = context;
 	}
 
-	public static void populateSpinner(Context context, Spinner spinCommonName, Spinner spinScientificName) {
+	public void populateSpinner(ArrayList<Specie> species, Spinner spinCommonName, Spinner spinScientificName) {
 		ArrayList<String> specieCommonNames = new ArrayList<>();
 		ArrayList<String> specieScientificNames = new ArrayList<>();
 
@@ -96,5 +47,98 @@ public class ApiCalls {
 
 		spinCommonName.setAdapter(commonNameAdapter);
 		spinScientificName.setAdapter(scientificNameAdapter);
+	}
+}
+
+public class ApiCalls {
+	public final ArrayList<Specie> species = new ArrayList<>();
+	public final ArrayList<String> imageNames = new ArrayList<>();
+	private final String BASE_URL = "https://leaf-lore-server.onrender.com";
+	private final String ALL_SPECIES = "/specie/all_species";
+	private final String ALL_IMAGE_NAMES = "/mapped_image/all_image_names";
+	private final Context context;
+	private final ApiCallsSupport support;
+	private final RequestQueue queue;
+	private final ApiCallsConfirmer confirmer;
+	private final int requestCount = 0;
+
+	public ApiCalls(Context context, ApiCallsConfirmer confirmer) {
+		this.context = context;
+		this.support = new ApiCallsSupport(context);
+		this.queue = Volley.newRequestQueue(context);
+		this.confirmer = confirmer;
+	}
+
+	public void fetchAllSpecies(Spinner spinCommonName, Spinner spinScientificName) {
+		StringRequest stringRequest = new StringRequest(Request.Method.GET, BASE_URL + ALL_SPECIES,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						species.clear();
+						try {
+							JSONObject responseObject = new JSONObject(response);
+							Log.d("api", "Response: " + responseObject.getInt("code") + ", " + responseObject.getString("message"));
+							JSONArray result = responseObject.getJSONArray("result");
+							for (int i = 0; i < result.length(); i++) {
+								JSONObject specieObject = result.getJSONObject(i);
+								species.add(
+										new Specie(
+												specieObject.getInt("id"),
+												specieObject.getInt("class_number"),
+												specieObject.getString("common_name"),
+												specieObject.getString("scientific_name"),
+												specieObject.getString("created_at"),
+												specieObject.getString("updated_at")));
+							}
+							confirmer.confirmAllSpeciesFetched(true);
+						} catch (JSONException e) {
+							Log.e("api", "onResponseError: " + e.getMessage());
+							e.printStackTrace();
+						}
+
+						support.populateSpinner(species, spinCommonName, spinScientificName);
+					}
+				},
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Log.e("api", "Species:\n\tErrorResponse: " + (error.getMessage() != null ? error.getMessage() : error.toString()));
+						Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
+					}
+				});
+
+		queue.add(stringRequest);
+	}
+
+	public void fetchAllImageNames() {
+		StringRequest stringRequest = new StringRequest(Request.Method.GET, BASE_URL + ALL_IMAGE_NAMES,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						try {
+							imageNames.clear();
+							JSONObject responseObject = new JSONObject(response);
+							Log.d("api", "Response: " + responseObject.getInt("code") + ", " + responseObject.getString("message"));
+							JSONArray result = responseObject.getJSONArray("result");
+							for (int i = 0; i < result.length(); i++) {
+								String imageName = result.getString(i);
+								imageNames.add(imageName);
+							}
+							confirmer.confirmAllImageNamesFetched(true);
+						} catch (JSONException e) {
+							Log.e("api", "onResponseError: " + e.getMessage());
+							e.printStackTrace();
+						}
+					}
+				},
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Log.e("api", "ImageNames:\n\tErrorResponse: " + (error.getMessage() != null ? error.getMessage() : error.toString()));
+						Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
+					}
+				});
+
+		queue.add(stringRequest);
 	}
 }

@@ -2,6 +2,7 @@ package com.leaf_lore.leaf_lore_frontend.researcher;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,29 +25,53 @@ import com.google.firebase.storage.StorageReference;
 import com.leaf_lore.leaf_lore_frontend.R;
 import com.leaf_lore.leaf_lore_frontend.models.Image;
 import com.leaf_lore.leaf_lore_frontend.utils.ApiCalls;
+import com.leaf_lore.leaf_lore_frontend.utils.ApiCallsConfirmer;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class ImageMapping extends AppCompatActivity {
+	private final int DELAY_TIME = 5000;
 	private Spinner spinCommonName, spinScientificName;
 	private ProgressBar progressBar;
 	private ConstraintLayout mapImageContainer;
 	private ArrayList<Image> images;
-	private int totalFetchedImages = -1;
+	private ApiCalls apiCalls;
+	private int totalFetchedImages = -1, imagesCount = 0;
+	private boolean isAllSpeciesFetched = false, isAllImageNamesFetched = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image_mapping);
 
+		// Setting up the API calls
+		apiCalls = new ApiCalls(this, new ApiCallsConfirmer() {
+			@Override
+			public void confirmAllSpeciesFetched(Boolean confirm) {
+				if (confirm) {
+					isAllSpeciesFetched = true;
+				}
+			}
+
+			@Override
+			public void confirmAllImageNamesFetched(Boolean confirm) {
+				if (confirm) {
+					isAllImageNamesFetched = true;
+				}
+			}
+		});
+
+		// Setting up the UI components
 		spinCommonName = findViewById(R.id.spinCommonName);
 		spinScientificName = findViewById(R.id.spinScientificName);
 		progressBar = findViewById(R.id.progressBarForMapImage);
 		mapImageContainer = findViewById(R.id.MapImageContainer);
 
+		// Initializing the images array
 		images = new ArrayList<>();
 
+		// Setting up the spinner listeners to show the selected item
 		spinCommonName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -59,7 +84,6 @@ public class ImageMapping extends AppCompatActivity {
 			public void onNothingSelected(AdapterView<?> parent) {
 			}
 		});
-
 		spinScientificName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -73,8 +97,13 @@ public class ImageMapping extends AppCompatActivity {
 			}
 		});
 
-		ApiCalls.fetchAllSpecies(this, spinCommonName, spinScientificName);
+		// Calling all APIs manually
+		apiCalls.fetchAllSpecies(spinCommonName, spinScientificName);
+		apiCalls.fetchAllImageNames();
 		fetchAllImagesFromFirebase();
+
+		// Running a periodic check for the APIs
+		runPeriodicCheckForApi();
 	}
 
 	private void fetchAllImagesFromFirebase() {
@@ -91,14 +120,13 @@ public class ImageMapping extends AppCompatActivity {
 						storageReference.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
 							@Override
 							public void onComplete(@NonNull Task<Uri> task) {
-								String url = "https://" + task.getResult().getEncodedAuthority() +
-										             task.getResult().getEncodedPath() + "?alt=media&token=" +
-										             task.getResult().getQueryParameters("token").get(0);
-								images.add(new Image(storageReference.getName(), url));
-
-								if (images.size() == totalFetchedImages) {
-									makeContainerVisible();
+								if (!apiCalls.imageNames.contains(storageReference.getName())) {
+									String url = "https://" + task.getResult().getEncodedAuthority() +
+											             task.getResult().getEncodedPath() + "?alt=media&token=" +
+											             task.getResult().getQueryParameters("token").get(0);
+									images.add(new Image(storageReference.getName(), url));
 								}
+								imagesCount++;
 							}
 						});
 					}
@@ -112,8 +140,32 @@ public class ImageMapping extends AppCompatActivity {
 		});
 	}
 
+	private void runPeriodicCheckForApi() {
+		Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if (isAllImageNamesFetched) {
+					if (isAllSpeciesFetched) {
+						if (imagesCount == totalFetchedImages) {
+							makeContainerVisible();
+						} else {
+							runPeriodicCheckForApi();
+						}
+					} else {
+						apiCalls.fetchAllSpecies(spinCommonName, spinScientificName);
+						runPeriodicCheckForApi();
+					}
+				} else {
+					apiCalls.fetchAllImageNames();
+					runPeriodicCheckForApi();
+				}
+			}
+		}, DELAY_TIME);
+	}
+
 	private void makeContainerVisible() {
-		Log.d("api", "Images Array: " + images.size());
+		Log.d("api", "Images in Array: " + images.size());
 		Toast.makeText(ImageMapping.this, "Images Loaded!", Toast.LENGTH_SHORT).show();
 		progressBar.setVisibility(View.GONE);
 		mapImageContainer.setVisibility(View.VISIBLE);
