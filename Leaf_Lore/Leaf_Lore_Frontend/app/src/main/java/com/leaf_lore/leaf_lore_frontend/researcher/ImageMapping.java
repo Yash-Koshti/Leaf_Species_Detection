@@ -1,19 +1,24 @@
 package com.leaf_lore.leaf_lore_frontend.researcher;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,9 +40,12 @@ public class ImageMapping extends AppCompatActivity {
 	private Spinner spinCommonName, spinScientificName;
 	private ProgressBar progressBar;
 	private ConstraintLayout mapImageContainer;
+	private TextView loadingText;
+	private ImageView actionImage;
+	private Button btnPrev, btnNext;
 	private ArrayList<Image> images;
 	private ApiCalls apiCalls;
-	private int totalFetchedImages = -1, imagesCount = 0;
+	private int totalFetchedImages = -1, imagesCount = 0, currentImageIndex = 0;
 	private boolean isAllSpeciesFetched = false, isAllImageNamesFetched = false;
 
 	@Override
@@ -66,7 +74,11 @@ public class ImageMapping extends AppCompatActivity {
 		spinCommonName = findViewById(R.id.spinCommonName);
 		spinScientificName = findViewById(R.id.spinScientificName);
 		progressBar = findViewById(R.id.progressBarForMapImage);
-		mapImageContainer = findViewById(R.id.MapImageContainer);
+		mapImageContainer = findViewById(R.id.MapImageLayout);
+		loadingText = findViewById(R.id.TxtV_Loading);
+		actionImage = findViewById(R.id.imgVAction);
+		btnPrev = findViewById(R.id.Btn_PreviousImage);
+		btnNext = findViewById(R.id.Btn_NextImage);
 
 		// Initializing the images array
 		images = new ArrayList<>();
@@ -76,8 +88,10 @@ public class ImageMapping extends AppCompatActivity {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				String item = parent.getItemAtPosition(position).toString();
-				if (!item.equals("Select Common name"))
+				if (!item.equals("Select Common name")) {
 					Toast.makeText(ImageMapping.this, item, Toast.LENGTH_SHORT).show();
+					spinScientificName.setSelection(position);
+				}
 			}
 
 			@Override
@@ -88,8 +102,10 @@ public class ImageMapping extends AppCompatActivity {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				String item = parent.getItemAtPosition(position).toString();
-				if (!item.equals("Select Scientific name"))
+				if (!item.equals("Select Scientific name")) {
 					Toast.makeText(ImageMapping.this, item, Toast.LENGTH_SHORT).show();
+					spinCommonName.setSelection(position);
+				}
 			}
 
 			@Override
@@ -101,9 +117,6 @@ public class ImageMapping extends AppCompatActivity {
 		apiCalls.fetchAllSpecies(spinCommonName, spinScientificName);
 		apiCalls.fetchAllImageNames();
 		fetchAllImagesFromFirebase();
-
-		// Running a periodic check for the APIs
-		runPeriodicCheckForApi();
 	}
 
 	private void fetchAllImagesFromFirebase() {
@@ -168,6 +181,52 @@ public class ImageMapping extends AppCompatActivity {
 		Log.d("api", "Images in Array: " + images.size());
 		Toast.makeText(ImageMapping.this, "Images Loaded!", Toast.LENGTH_SHORT).show();
 		progressBar.setVisibility(View.GONE);
+		loadingText.setVisibility(View.GONE);
 		mapImageContainer.setVisibility(View.VISIBLE);
+		showImageOnAction();
+	}
+
+	private void showImageOnAction() {
+		if (images.size() > 0) {
+			showImage(images.get(currentImageIndex).url());
+			btnNext.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (currentImageIndex < images.size() - 1) {
+						currentImageIndex++;
+						showImage(images.get(currentImageIndex).url());
+					}
+				}
+			});
+			btnPrev.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (currentImageIndex > 0) {
+						currentImageIndex--;
+						showImage(images.get(currentImageIndex).url());
+					}
+				}
+			});
+		}
+	}
+
+	private void showImage(String url) {
+		Glide.with(this).load(url).into(actionImage);
+		actionImage.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setDataAndType(Uri.parse(url), "image/*");
+				startActivity(intent);
+			}
+		});
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		// Running a periodic check for the APIs
+		runPeriodicCheckForApi();
 	}
 }
