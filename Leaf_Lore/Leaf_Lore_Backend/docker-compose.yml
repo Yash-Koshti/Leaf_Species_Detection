@@ -10,6 +10,8 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    networks:
+      - app-network
 
   db:
     image: postgres:16
@@ -24,6 +26,12 @@ services:
       - "5432:5432"
     volumes:
       - leaf_lore_backend_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   leaf_lore_backend_data:
