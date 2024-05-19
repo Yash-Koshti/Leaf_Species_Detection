@@ -9,3 +9,6 @@ __pycache__/
 \.env.*
 
 seeder
+
+Dockerfile
+.dockerignore

@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  # web:
+  #   build: .
+  #   container_name: Leaf_Lore_Backend
+  #   env_file:
+  #     - .env.${ENV}
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - db
+
+  db:
+    image: postgres:16
+    container_name: leaf_lore_db
+    env_file:
+      - .env.${ENV}
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - leaf_lore_backend_data:/var/lib/postgresql/data
+
+volumes:
+  leaf_lore_backend_data:
