@@ -15,6 +15,9 @@ COPY requirements.txt .
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Bind to the 0.0.0.0
+RUN echo "Listen 0.0.0.0:5432"
+
 # Copy the rest of the application code
 COPY . .
 
