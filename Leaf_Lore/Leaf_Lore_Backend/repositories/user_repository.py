@@ -1,9 +1,11 @@
-from sqlalchemy.orm import Session
-from schemas import UserSchema
-from models import User
-from sqlalchemy.exc import SQLAlchemyError
-from fastapi.logger import logger
 from datetime import datetime
+
+from fastapi.logger import logger
+from models import User
+from schemas import UserSchema
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+
 
 class UserRepository:
     def __init__(self, db: Session):

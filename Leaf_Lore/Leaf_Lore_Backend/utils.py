@@ -16,20 +16,20 @@ def get_db():
     finally:
         db.close()
 
-def get_user_repository(db: Session = Depends(get_db)) -> UserService:
+def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
     return UserRepository(db)
 
 def get_user_service(user_repository: UserRepository = Depends(get_user_repository)) -> UserService:
     return UserService(user_repository)
 
-def get_mapped_image_repository(db: Session = Depends(get_db)):
+def get_mapped_image_repository(db: Session = Depends(get_db)) -> MappedImageRepository:
     return MappedImageRepository(db)
 
-def get_mapped_image_service(mapped_image_repository: MappedImageRepository = Depends(get_mapped_image_repository)):
+def get_mapped_image_service(mapped_image_repository: MappedImageRepository = Depends(get_mapped_image_repository)) -> MappedImageService:
     return MappedImageService(mapped_image_repository)
 
-def get_specie_repository(db: Session = Depends(get_db)):
+def get_specie_repository(db: Session = Depends(get_db)) -> SpecieRepository:
     return SpecieRepository(db)
 
-def get_specie_service(specie_repository: SpecieRepository = Depends(get_specie_repository)):
+def get_specie_service(specie_repository: SpecieRepository = Depends(get_specie_repository)) -> SpecieService:
     return SpecieService(specie_repository)
