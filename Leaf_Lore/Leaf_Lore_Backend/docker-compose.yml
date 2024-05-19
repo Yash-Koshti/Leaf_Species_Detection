@@ -1,15 +1,15 @@
 version: "3.8"
 
 services:
-  # web:
-  #   build: .
-  #   container_name: Leaf_Lore_Backend
-  #   env_file:
-  #     - .env.${ENV}
-  #   ports:
-  #     - "8000:8000"
-  #   depends_on:
-  #     - db
+  web:
+    build: .
+    container_name: Leaf_Lore_Backend
+    env_file:
+      - .env.${ENV}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
 
   db:
     image: postgres:16
