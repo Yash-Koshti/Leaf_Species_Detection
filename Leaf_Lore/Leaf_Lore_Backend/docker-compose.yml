@@ -4,34 +4,24 @@ services:
   web:
     build: .
     container_name: Leaf_Lore_Backend
-    env_file:
-      - .env.${ENV}
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://leaf_lore_admin:leaf_lore_1927@db:5432/leaf_lore_dev
     depends_on:
       - db
-    networks:
-      - app-network
 
   db:
     image: postgres:16
     container_name: leaf_lore_db
-    env_file:
-      - .env.${ENV}
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      - POSTGRES_USER=leaf_lore_admin
+      - POSTGRES_PASSWORD=leaf_lore_1927
+      - POSTGRES_DB=leaf_lore_dev
     ports:
       - "5432:5432"
     volumes:
       - leaf_lore_backend_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
 
 volumes:
   leaf_lore_backend_data:
