@@ -23,6 +23,7 @@ EXPOSE 8000
 
 # Define environment variable
 ENV PYTHONUNBUFFERED=1
+ENV DATABASE_URL=postgresql://leaf_lore_admin:leaf_lore_1927@db:5432/leaf_lore_dev
 
 # Run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
