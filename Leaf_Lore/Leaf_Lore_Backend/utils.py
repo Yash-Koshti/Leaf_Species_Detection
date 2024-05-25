@@ -8,6 +8,10 @@ from repositories.specie_repository import SpecieRepository
 from services.user_service import UserService
 from services.mapped_image_service import MappedImageService
 from services.specie_service import SpecieService
+from services.shape_service import ShapeService
+from services.apex_service import ApexService
+from services.margin_service import MarginService
+from services.prediction_log_service import PredictionLogService
 
 def get_db():
     db = SessionLocal()
@@ -33,3 +37,15 @@ def get_specie_repository(db: Session = Depends(get_db)) -> SpecieRepository:
 
 def get_specie_service(specie_repository: SpecieRepository = Depends(get_specie_repository)) -> SpecieService:
     return SpecieService(specie_repository)
+
+def get_shape_service(db: Session = Depends(get_db)) -> ShapeService:
+    return ShapeService(db)
+
+def get_apex_service(db: Session = Depends(get_db)) -> ApexService:
+    return ApexService(db)
+
+def get_margin_service(db: Session = Depends(get_db)) -> MarginService:
+    return MarginService(db)
+
+def get_prediction_log_service(db: Session = Depends(get_db)) -> PredictionLogService:
+    return PredictionLogService(db)

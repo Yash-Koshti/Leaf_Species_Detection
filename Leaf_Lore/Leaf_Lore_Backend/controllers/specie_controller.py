@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-
 from models import Specie, SpecieRequest, SpecieResponse
 from services.specie_service import SpecieService
 from utils import get_specie_service
