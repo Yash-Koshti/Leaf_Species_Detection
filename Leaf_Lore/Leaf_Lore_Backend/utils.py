@@ -2,9 +2,6 @@ from config import SessionLocal
 from sqlalchemy.orm import Session
 from fastapi import Depends
 
-from repositories.user_repository import UserRepository
-from repositories.mapped_image_repository import MappedImageRepository
-from repositories.specie_repository import SpecieRepository
 from services.user_service import UserService
 from services.mapped_image_service import MappedImageService
 from services.specie_service import SpecieService
@@ -20,23 +17,14 @@ def get_db():
     finally:
         db.close()
 
-def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
-    return UserRepository(db)
+def get_user_service(db: Session = Depends(get_db)) -> UserService:
+    return UserService(db)
 
-def get_user_service(user_repository: UserRepository = Depends(get_user_repository)) -> UserService:
-    return UserService(user_repository)
+def get_mapped_image_service(db: Session = Depends(get_db)) -> MappedImageService:
+    return MappedImageService(db)
 
-def get_mapped_image_repository(db: Session = Depends(get_db)) -> MappedImageRepository:
-    return MappedImageRepository(db)
-
-def get_mapped_image_service(mapped_image_repository: MappedImageRepository = Depends(get_mapped_image_repository)) -> MappedImageService:
-    return MappedImageService(mapped_image_repository)
-
-def get_specie_repository(db: Session = Depends(get_db)) -> SpecieRepository:
-    return SpecieRepository(db)
-
-def get_specie_service(specie_repository: SpecieRepository = Depends(get_specie_repository)) -> SpecieService:
-    return SpecieService(specie_repository)
+def get_specie_service(db: Session = Depends(get_db)) -> SpecieService:
+    return SpecieService(db)
 
 def get_shape_service(db: Session = Depends(get_db)) -> ShapeService:
     return ShapeService(db)

@@ -41,6 +41,9 @@ class MappedImage(BaseModel):
     image_name: Optional[str] = None
     specie_id: Optional[int] = None
     user_id: Optional[int] = None
+    shape_id: Optional[int] = None
+    apex_id: Optional[int] = None
+    margin_id: Optional[int] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
