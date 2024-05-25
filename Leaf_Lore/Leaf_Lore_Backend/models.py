@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Generic, List, Optional, TypeVar
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -13,7 +14,7 @@ class Role(str, Enum):
 
 
 class User(BaseModel):
-    id: Optional[int] = None
+    id: Optional[UUID] = None
     name: Optional[str] = None
     email: Optional[str] = None
     password: Optional[str] = None
@@ -37,13 +38,13 @@ class UserResponse(BaseModel, Generic[T]):
 
 
 class MappedImage(BaseModel):
-    id: Optional[int] = None
+    id: Optional[UUID] = None
     image_name: Optional[str] = None
-    specie_id: Optional[int] = None
-    user_id: Optional[int] = None
-    shape_id: Optional[int] = None
-    apex_id: Optional[int] = None
-    margin_id: Optional[int] = None
+    specie_id: Optional[UUID] = None
+    user_id: Optional[UUID] = None
+    shape_id: Optional[UUID] = None
+    apex_id: Optional[UUID] = None
+    margin_id: Optional[UUID] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
@@ -63,7 +64,7 @@ class MappedImageResponse(BaseModel, Generic[T]):
 
 
 class Specie(BaseModel):
-    id: Optional[int] = None
+    id: Optional[UUID] = None
     class_number: Optional[int] = None
     common_name: Optional[str] = None
     scientific_name: Optional[str] = None
@@ -86,7 +87,7 @@ class SpecieResponse(BaseModel, Generic[T]):
 
 
 class Shape(BaseModel):
-    id: Optional[int] = None
+    id: Optional[UUID] = None
     shape_name: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
@@ -107,7 +108,7 @@ class ShapeResponse(BaseModel, Generic[T]):
 
 
 class Apex(BaseModel):
-    id: Optional[int] = None
+    id: Optional[UUID] = None
     apex_name: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
@@ -128,7 +129,7 @@ class ApexResponse(BaseModel, Generic[T]):
 
 
 class Margin(BaseModel):
-    id: Optional[int] = None
+    id: Optional[UUID] = None
     margin_name: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
@@ -149,13 +150,13 @@ class MarginResponse(BaseModel, Generic[T]):
 
 
 class PredictionLog(BaseModel):
-    id: Optional[int] = None
+    id: Optional[UUID] = None
     image_name: Optional[str] = None
-    user_id: Optional[int] = None
-    specie_id: Optional[int] = None
-    shape_id: Optional[int] = None
-    apex_id: Optional[int] = None
-    margin_id: Optional[int] = None
+    user_id: Optional[UUID] = None
+    specie_id: Optional[UUID] = None
+    shape_id: Optional[UUID] = None
+    apex_id: Optional[UUID] = None
+    margin_id: Optional[UUID] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 

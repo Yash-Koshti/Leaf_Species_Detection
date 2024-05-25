@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from fastapi.logger import logger
 from models import User
@@ -36,7 +37,7 @@ class UserService:
             .first()
         )
 
-    def get_user_by_id(self, user_id: int) -> UserSchema:
+    def get_user_by_id(self, user_id: UUID) -> UserSchema:
         return self.db.query(UserSchema).filter(UserSchema.id == user_id).first()
 
     def update_user(self, user: User) -> UserSchema:

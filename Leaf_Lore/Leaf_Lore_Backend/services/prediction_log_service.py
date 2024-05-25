@@ -1,15 +1,19 @@
-from models import PredictionLog, PredictionLogRequest, PredictionLogResponse
+from uuid import UUID
+
+from fastapi.logger import logger
+from models import PredictionLog
 from schemas import PredictionLogSchema
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-from fastapi.logger import logger
 
 
 class PredictionLogService:
     def __init__(self, db: Session):
         self.db = db
 
-    def create_prediction_log(self, prediction_log: PredictionLog) -> PredictionLogSchema:
+    def create_prediction_log(
+        self, prediction_log: PredictionLog
+    ) -> PredictionLogSchema:
         prediction_log = PredictionLogSchema(
             image_name=prediction_log.image_name,
             user_id=prediction_log.user_id,
@@ -31,17 +35,19 @@ class PredictionLogService:
     def get_all_prediction_logs(self) -> list[PredictionLogSchema]:
         return self.db.query(PredictionLogSchema).all()
 
-    def get_by_prediction_log_id(self, prediction_log_id: int) -> PredictionLogSchema:
+    def get_by_prediction_log_id(self, prediction_log_id: UUID) -> PredictionLogSchema:
         return (
             self.db.query(PredictionLogSchema)
             .filter(PredictionLogSchema.id == prediction_log_id)
             .first()
         )
 
-    def delete_prediction_log(self, prediction_log_id: int) -> PredictionLogSchema:
+    def delete_prediction_log(
+        self, prediction_log: PredictionLog
+    ) -> PredictionLogSchema:
         prediction_log = (
             self.db.query(PredictionLogSchema)
-            .filter(PredictionLogSchema.id == prediction_log_id)
+            .filter(PredictionLogSchema.id == prediction_log.id)
             .first()
         )
         if prediction_log:

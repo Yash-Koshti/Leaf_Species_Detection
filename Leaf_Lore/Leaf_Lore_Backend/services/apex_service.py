@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi.logger import logger
 from models import Apex
 from schemas import ApexSchema
@@ -24,11 +26,11 @@ class ApexService:
     def get_all_apexes(self) -> list[Apex]:
         return self.db.query(ApexSchema).all()
 
-    def get_by_apex_id(self, apex_id: int) -> ApexSchema:
+    def get_by_apex_id(self, apex_id: UUID) -> ApexSchema:
         return self.db.query(ApexSchema).filter(ApexSchema.id == apex_id).first()
 
-    def delete_apex(self, apex_id: int) -> ApexSchema:
-        apex = self.db.query(ApexSchema).filter(ApexSchema.id == apex_id).first()
+    def delete_apex(self, apex: Apex) -> ApexSchema:
+        apex = self.db.query(ApexSchema).filter(ApexSchema.id == apex.id).first()
         if apex:
             self.db.delete(apex)
             self.db.commit()

@@ -1,5 +1,7 @@
+from uuid import UUID
+
 from fastapi.logger import logger
-from models import Margin, MarginRequest, MarginResponse
+from models import Margin
 from schemas import MarginSchema
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -24,12 +26,12 @@ class MarginService:
     def get_all_margins(self) -> list[MarginSchema]:
         return self.db.query(MarginSchema).all()
 
-    def get_by_margin_id(self, margin_id: int) -> MarginSchema:
+    def get_by_margin_id(self, margin_id: UUID) -> MarginSchema:
         return self.db.query(MarginSchema).filter(MarginSchema.id == margin_id).first()
 
-    def delete_margin(self, margin_id: int) -> MarginSchema:
+    def delete_margin(self, margin: Margin) -> MarginSchema:
         margin = (
-            self.db.query(MarginSchema).filter(MarginSchema.id == margin_id).first()
+            self.db.query(MarginSchema).filter(MarginSchema.id == margin.id).first()
         )
         if margin:
             self.db.delete(margin)

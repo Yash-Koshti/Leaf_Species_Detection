@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-
 from models import Margin, MarginRequest, MarginResponse
 from services.margin_service import MarginService
 from utils import get_margin_service
@@ -26,7 +25,7 @@ async def get_all_margins(
         )
     else:
         raise HTTPException(status_code=404, detail="No margins found!")
-    
+
 
 @margin_router.post("/create_margin", response_model=MarginResponse[Margin])
 async def create_margin(
@@ -43,7 +42,7 @@ async def create_margin(
         )
     else:
         raise HTTPException(status_code=500, detail="Internal Server Error!")
-    
+
 
 @margin_router.get("/get_by_margin_id", response_model=MarginResponse[Margin])
 async def get_by_margin_id(
@@ -60,14 +59,14 @@ async def get_by_margin_id(
         )
     else:
         raise HTTPException(status_code=404, detail="Margin not found!")
-    
+
 
 @margin_router.delete("/delete_margin", response_model=MarginResponse[Margin])
 async def delete_margin(
     request: MarginRequest,
     service: MarginService = Depends(get_margin_service),
 ) -> MarginResponse[Margin] | HTTPException:
-    margin = service.delete_margin(request.params.id)
+    margin = service.delete_margin(request.params)
     if margin:
         return MarginResponse(
             code=200,

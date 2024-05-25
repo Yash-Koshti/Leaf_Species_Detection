@@ -66,7 +66,7 @@ async def delete_apex(
     request: ApexRequest,
     service: ApexService = Depends(get_apex_service),
 ) -> ApexResponse[Apex] | HTTPException:
-    apex = service.delete_apex(request.params.id)
+    apex = service.delete_apex(request.params)
     if apex:
         return ApexResponse(
             code=200,

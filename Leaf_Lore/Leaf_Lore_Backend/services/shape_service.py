@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi.logger import logger
 from models import Shape
 from schemas import ShapeSchema
@@ -24,11 +26,11 @@ class ShapeService:
     def get_all_shapes(self) -> list[Shape]:
         return self.db.query(ShapeSchema).all()
 
-    def get_by_shape_id(self, shape_id: int) -> ShapeSchema:
+    def get_by_shape_id(self, shape_id: UUID) -> ShapeSchema:
         return self.db.query(ShapeSchema).filter(ShapeSchema.id == shape_id).first()
 
-    def delete_shape(self, shape_id: int) -> ShapeSchema:
-        shape = self.db.query(ShapeSchema).filter(ShapeSchema.id == shape_id).first()
+    def delete_shape(self, shape: Shape) -> ShapeSchema:
+        shape = self.db.query(ShapeSchema).filter(ShapeSchema.id == shape.id).first()
         if shape:
             self.db.delete(shape)
             self.db.commit()

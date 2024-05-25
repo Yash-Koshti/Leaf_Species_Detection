@@ -25,7 +25,7 @@ async def get_all_shapes(
         )
     else:
         raise HTTPException(status_code=404, detail="No shapes found!")
-    
+
 
 @shape_router.post("/create_shape", response_model=ShapeResponse[Shape])
 async def create_shape(
@@ -42,7 +42,7 @@ async def create_shape(
         )
     else:
         raise HTTPException(status_code=500, detail="Internal Server Error!")
-    
+
 
 @shape_router.get("/get_by_shape_id", response_model=ShapeResponse[Shape])
 async def get_by_shape_id(
@@ -59,14 +59,14 @@ async def get_by_shape_id(
         )
     else:
         raise HTTPException(status_code=404, detail="Shape not found!")
-    
+
 
 @shape_router.delete("/delete_shape", response_model=ShapeResponse[Shape])
 async def delete_shape(
     request: ShapeRequest,
     service: ShapeService = Depends(get_shape_service),
 ) -> ShapeResponse[Shape] | HTTPException:
-    shape = service.delete_shape(request.params.id)
+    shape = service.delete_shape(request.params)
     if shape:
         return ShapeResponse(
             code=200,
