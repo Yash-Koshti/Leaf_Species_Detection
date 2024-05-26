@@ -28,7 +28,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.leaf_lore.leaf_lore_frontend.R;
-import com.leaf_lore.leaf_lore_frontend.models.Image;
+import com.leaf_lore.leaf_lore_frontend.entity.MappedImage;
+import com.leaf_lore.leaf_lore_frontend.model.Image;
 import com.leaf_lore.leaf_lore_frontend.utils.ApiCalls;
 import com.leaf_lore.leaf_lore_frontend.utils.ApiCallsConfirmer;
 
@@ -36,18 +37,19 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class ImageMapping extends AppCompatActivity {
-	private final int DELAY_TIME = 10000;
+	private int DELAY_TIME = 10000;
 	private Spinner spinCommonName, spinScientificName, spinShape, spinApex, spinMargin;
 	private ProgressBar progressBar;
 	private ConstraintLayout mapImageLayout;
-	private TextView loadingText;
+	private TextView loadingText, currentImageText;
 	private ImageView actionImage;
-	private Button btnPrev, btnNext;
+	private Button btnPrev, btnNext, btnSubmit;
 	private ArrayList<Image> images;
+	private ArrayList<MappedImage> mappedImages;
 	private ApiCalls apiCalls;
 	private int totalFetchedImages = -1, imagesCount = 0, currentImageIndex = 0;
 	private boolean isAllSpeciesFetched = false;
-	private boolean isAllImageNamesFetched = false;
+	private boolean isAllMappedImageNamesFetched = false;
 	private boolean isAllShapesFetched = false;
 	private boolean isAllApexesFetched = false;
 	private boolean isAllMarginsFetched = false;
@@ -67,7 +69,7 @@ public class ImageMapping extends AppCompatActivity {
 
 			@Override
 			public void confirmAllImageNamesFetched(boolean confirm) {
-				isAllImageNamesFetched = confirm;
+				isAllMappedImageNamesFetched = confirm;
 			}
 
 			@Override
@@ -98,9 +100,12 @@ public class ImageMapping extends AppCompatActivity {
 		spinShape = findViewById(R.id.spinShape);
 		spinApex = findViewById(R.id.spinApex);
 		spinMargin = findViewById(R.id.spinMargin);
+		btnSubmit = findViewById(R.id.Btn_SubmitMappedImage);
+		currentImageText = findViewById(R.id.TxtV_CurrentImageIndex);
 
 		// Initializing the images array
 		images = new ArrayList<>();
+		mappedImages = new ArrayList<>();
 
 		// Setting up the spinner listeners to show the selected item
 		spinCommonName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -157,9 +162,22 @@ public class ImageMapping extends AppCompatActivity {
 			public void onNothingSelected(AdapterView<?> parent) {
 			}
 		});
+		spinMargin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				String item = parent.getItemAtPosition(position).toString();
+				if (!item.equals("Select Margin")) {
+					Toast.makeText(ImageMapping.this, item, Toast.LENGTH_SHORT).show();
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		});
 
 		// Calling all APIs manually
-		apiCalls.fetchAllImageNames();
+		apiCalls.fetchAllMappedImageNames();
 		apiCalls.fetchAllSpecies(spinCommonName, spinScientificName);
 		apiCalls.fetchAllShapes(spinShape);
 		apiCalls.fetchAllApexes(spinApex);
@@ -170,7 +188,7 @@ public class ImageMapping extends AppCompatActivity {
 	private void fetchAllImagesFromFirebase() {
 		FirebaseApp.initializeApp(this);
 
-		FirebaseStorage.getInstance().getReference().child("Black_Background").listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+		FirebaseStorage.getInstance().getReference().child("Black_Background").list(10).addOnSuccessListener(new OnSuccessListener<ListResult>() {
 			@Override
 			public void onSuccess(ListResult listResult) {
 				totalFetchedImages = listResult.getItems().size();
@@ -207,7 +225,8 @@ public class ImageMapping extends AppCompatActivity {
 			@Override
 			public void run() {
 				loadingText.setText("Fetching Mapped Images...");
-				if (isAllImageNamesFetched) {
+				if (isAllMappedImageNamesFetched) {
+					DELAY_TIME = 3000;
 					loadingText.setText("Loading Species...");
 					if (isAllSpeciesFetched) {
 						loadingText.setText("Loading Shapes...");
@@ -216,7 +235,8 @@ public class ImageMapping extends AppCompatActivity {
 							if (isAllApexesFetched) {
 								loadingText.setText("Loading Margins...");
 								if (isAllMarginsFetched) {
-									loadingText.setText("Loading Images (" + ((imagesCount * 100) / totalFetchedImages) + "%)");
+									DELAY_TIME = 1000;
+									loadingText.setText("Loading images (" + ((imagesCount * 100) / totalFetchedImages) + "%)");
 									if (imagesCount == totalFetchedImages) {
 										makeContainerVisible();
 										runPeriodicCheck = false;
@@ -240,7 +260,7 @@ public class ImageMapping extends AppCompatActivity {
 						runPeriodicCheckForApi();
 					}
 				} else {
-					apiCalls.fetchAllImageNames();
+					apiCalls.fetchAllMappedImageNames();
 					runPeriodicCheckForApi();
 				}
 			}
@@ -258,13 +278,27 @@ public class ImageMapping extends AppCompatActivity {
 
 	private void showImageOnAction() {
 		if (images.size() > 0) {
+			currentImageText.setText("Image " + (currentImageIndex + 1) + " of " + images.size());
 			showImage(images.get(currentImageIndex).url());
 			btnNext.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					if (currentImageIndex < images.size() - 1) {
-						currentImageIndex++;
-						showImage(images.get(currentImageIndex).url());
+					if (isFormValid()) {
+						addCurrentMappedImage();
+
+						if (currentImageIndex < images.size() - 1) {
+							currentImageIndex++;
+							if (currentImageIndex < mappedImages.size())
+								refillForm();
+							else
+								resetForm();
+							showImage(images.get(currentImageIndex).url());
+							handleButtonEnabling();
+						}
+
+						currentImageText.setText("Image " + (currentImageIndex + 1) + " of " + images.size());
+					} else {
+						Toast.makeText(ImageMapping.this, "Verify every field is selected!", Toast.LENGTH_SHORT).show();
 					}
 				}
 			});
@@ -272,8 +306,14 @@ public class ImageMapping extends AppCompatActivity {
 				@Override
 				public void onClick(View v) {
 					if (currentImageIndex > 0) {
+						addCurrentMappedImage();
+
 						currentImageIndex--;
 						showImage(images.get(currentImageIndex).url());
+						handleButtonEnabling();
+						refillForm();
+
+						currentImageText.setText("Image " + (currentImageIndex + 1) + " of " + images.size());
 					}
 				}
 			});
@@ -292,6 +332,70 @@ public class ImageMapping extends AppCompatActivity {
 		});
 	}
 
+	private void handleButtonEnabling() {
+		btnPrev.setEnabled(currentImageIndex != 0);
+		btnNext.setEnabled(currentImageIndex != images.size() - 1);
+	}
+
+	private boolean isFormValid() {
+		return spinCommonName.getSelectedItemPosition() != 0 &&
+				       spinScientificName.getSelectedItemPosition() != 0 &&
+				       spinShape.getSelectedItemPosition() != 0 &&
+				       spinApex.getSelectedItemPosition() != 0 &&
+				       spinMargin.getSelectedItemPosition() != 0;
+	}
+
+	private void addCurrentMappedImage() {
+		MappedImage currentMappedImage = new MappedImage(
+				images.get(currentImageIndex).name(),
+				apiCalls.species.get(spinCommonName.getSelectedItemPosition()).id(),
+				"",
+				apiCalls.shapes.get(spinShape.getSelectedItemPosition()).id(),
+				apiCalls.apexes.get(spinApex.getSelectedItemPosition()).id(),
+				apiCalls.margins.get(spinMargin.getSelectedItemPosition()).id());
+
+		if (mappedImages.size() > currentImageIndex)
+			mappedImages.remove(currentImageIndex);
+		mappedImages.add(currentImageIndex, currentMappedImage);
+
+		Log.d("api", "Mapped Images: " + mappedImages.size());
+		mappedImages.forEach(mappedImage -> {
+			Log.d("api", "Mapped Image: " + mappedImage.getImage_name());
+		});
+	}
+
+	private void resetForm() {
+		spinCommonName.setSelection(0);
+		spinScientificName.setSelection(0);
+		spinShape.setSelection(0);
+		spinApex.setSelection(0);
+		spinMargin.setSelection(0);
+	}
+
+	private void refillForm() {
+		apiCalls.species.forEach(specie -> {
+			if (specie.id().equals(mappedImages.get(currentImageIndex).getSpecie_id())) {
+				spinCommonName.setSelection(apiCalls.species.indexOf(specie));
+				spinScientificName.setSelection(apiCalls.species.indexOf(specie));
+			}
+		});
+		apiCalls.shapes.forEach(shape -> {
+			if (shape.id().equals(mappedImages.get(currentImageIndex).getShape_id())) {
+				spinShape.setSelection(apiCalls.shapes.indexOf(shape));
+			}
+		});
+		apiCalls.apexes.forEach(apex -> {
+			if (apex.id().equals(mappedImages.get(currentImageIndex).getApex_id())) {
+				spinApex.setSelection(apiCalls.apexes.indexOf(apex));
+			}
+		});
+		apiCalls.margins.forEach(margin -> {
+			if (margin.id().equals(mappedImages.get(currentImageIndex).getMargin_id())) {
+				spinMargin.setSelection(apiCalls.margins.indexOf(margin));
+			}
+		});
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -299,5 +403,10 @@ public class ImageMapping extends AppCompatActivity {
 		// Running a periodic check for the APIs
 		if (runPeriodicCheck)
 			runPeriodicCheckForApi();
+
+
+		btnSubmit.setOnClickListener(v -> {
+
+		});
 	}
 }
