@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorAccent">@color/accent</item>
+
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/secondary</item>
+
+        <!-- Background and Surface Colors -->
+        <item name="android:colorBackground">@color/backgroundColor</item>
+        <item name="colorSurface">@color/surfaceColor</item>
+        <item name="colorError">@color/errorColor</item>
+
+        <!-- Text Colors -->
+        <item name="colorOnPrimary">@color/onPrimaryColor</item>
+        <item name="colorOnSecondary">@color/onSecondaryColor</item>
+        <item name="colorOnBackground">@color/onBackgroundColor</item>
+        <item name="colorOnSurface">@color/onSurfaceColor</item>
+        <item name="colorOnError">@color/onErrorColor</item>
+
+        <!-- Customize Text Appearance -->
+        <item name="android:textAppearance">@style/CustomTextAppearance</item>
+
+        <!-- Customize Button Style -->
+        <item name="buttonStyle">@style/CustomButtonStyle</item>
+
+        <!-- Customize Toolbar Style -->
+        <item name="toolbarStyle">@style/CustomToolbarStyle</item>
+    </style>
+
+    <!-- Custom Text Appearance -->
+    <style name="CustomTextAppearance" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">@color/onBackgroundColor</item>
+    </style>
+
+    <!-- Custom Button Style -->
+    <style name="CustomButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">@color/primary</item>
+        <item name="android:textColor">@color/onPrimaryColor</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <!-- Custom Toolbar Style -->
+    <style name="CustomToolbarStyle" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">@color/primary</item>
+        <item name="android:titleTextColor">@color/onPrimaryColor</item>
+    </style>
+</resources>

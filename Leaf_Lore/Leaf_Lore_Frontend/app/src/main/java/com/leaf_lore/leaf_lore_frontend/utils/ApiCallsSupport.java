@@ -4,10 +4,10 @@ import android.content.Context;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import com.leaf_lore.leaf_lore_frontend.models.Apex;
-import com.leaf_lore.leaf_lore_frontend.models.Margin;
-import com.leaf_lore.leaf_lore_frontend.models.Shape;
-import com.leaf_lore.leaf_lore_frontend.models.Specie;
+import com.leaf_lore.leaf_lore_frontend.model.Apex;
+import com.leaf_lore.leaf_lore_frontend.model.Margin;
+import com.leaf_lore.leaf_lore_frontend.model.Shape;
+import com.leaf_lore.leaf_lore_frontend.model.Specie;
 
 import java.util.ArrayList;
 

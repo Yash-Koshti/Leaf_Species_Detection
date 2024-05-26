@@ -11,10 +11,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.leaf_lore.leaf_lore_frontend.models.Apex;
-import com.leaf_lore.leaf_lore_frontend.models.Margin;
-import com.leaf_lore.leaf_lore_frontend.models.Shape;
-import com.leaf_lore.leaf_lore_frontend.models.Specie;
+import com.leaf_lore.leaf_lore_frontend.model.Apex;
+import com.leaf_lore.leaf_lore_frontend.model.Margin;
+import com.leaf_lore.leaf_lore_frontend.model.Shape;
+import com.leaf_lore.leaf_lore_frontend.model.Specie;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 public class ApiCalls {
 	private static final String BASE_URL = "https://leaf-lore-server.onrender.com";
 	private static final String ALL_SPECIES = "/specie/all_species";
-	private static final String ALL_IMAGE_NAMES = "/mapped_image/all_image_names";
+	private static final String ALL_MAPPED_IMAGE_NAMES = "/mapped_image/all_image_names";
 	private static final String ALL_SHAPES = "/shape/all_shapes";
 	private static final String ALL_APEXES = "/apex/all_apexes";
 	private static final String ALL_MARGINS = "/margin/all_margins";
@@ -86,8 +86,8 @@ public class ApiCalls {
 		queue.add(stringRequest);
 	}
 
-	public void fetchAllImageNames() {
-		StringRequest stringRequest = new StringRequest(Request.Method.GET, BASE_URL + ALL_IMAGE_NAMES,
+	public void fetchAllMappedImageNames() {
+		StringRequest stringRequest = new StringRequest(Request.Method.GET, BASE_URL + ALL_MAPPED_IMAGE_NAMES,
 				new Response.Listener<String>() {
 					@Override
 					public void onResponse(String response) {
@@ -110,7 +110,7 @@ public class ApiCalls {
 				new Response.ErrorListener() {
 					@Override
 					public void onErrorResponse(VolleyError error) {
-						Log.e("api", "ImageNames:\n\tErrorResponse: " + getErrorMessage(error));
+						Log.e("api", "MappedImageNames:\n\tErrorResponse: " + getErrorMessage(error));
 						if (error.networkResponse != null && error.networkResponse.statusCode == 404)
 							confirmer.confirmAllImageNamesFetched(true);
 					}
