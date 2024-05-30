@@ -5,12 +5,16 @@ import android.util.Log;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.leaf_lore.leaf_lore_frontend.entity.MappedImage;
 import com.leaf_lore.leaf_lore_frontend.model.Apex;
 import com.leaf_lore.leaf_lore_frontend.model.Margin;
 import com.leaf_lore.leaf_lore_frontend.model.Shape;
@@ -29,6 +33,7 @@ public class ApiCalls {
 	private static final String ALL_SHAPES = "/shape/all_shapes";
 	private static final String ALL_APEXES = "/apex/all_apexes";
 	private static final String ALL_MARGINS = "/margin/all_margins";
+	private static final String CREATE_MAPPED_IMAGE = "/mapped_image/create_mapped_image";
 	public final ArrayList<Specie> species = new ArrayList<>();
 	public final ArrayList<String> imageNames = new ArrayList<>();
 	public final ArrayList<Shape> shapes = new ArrayList<>();
@@ -231,6 +236,48 @@ public class ApiCalls {
 				});
 
 		queue.add(stringRequest);
+	}
+
+	public void sendAllMappedImages(ArrayList<MappedImage> mappedImages) {
+		for (MappedImage mappedImage : mappedImages) {
+			JSONObject params = new JSONObject();
+			JSONObject jsonBody = new JSONObject();
+
+			try {
+				params.put("image_name", mappedImage.getImage_name());
+				params.put("specie_id", mappedImage.getSpecie_id());
+				params.put("user_id", mappedImage.getUser_id());
+				params.put("shape_id", mappedImage.getShape_id());
+				params.put("apex_id", mappedImage.getApex_id());
+				params.put("margin_id", mappedImage.getMargin_id());
+
+				jsonBody.put("params", params);
+			} catch (JSONException e) {
+				Log.e("api", "sendAllMappedImagesError: " + e.getMessage());
+				e.printStackTrace();
+			}
+			JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, BASE_URL + CREATE_MAPPED_IMAGE, jsonBody,
+					new Response.Listener<JSONObject>() {
+						@Override
+						public void onResponse(@Nullable JSONObject response) {
+							try {
+								Log.d("api", "Response: " + response.getInt("code") + ", " + response.getString("message"));
+//								confirmer.confirmMappedImageCreated(true);
+							} catch (JSONException e) {
+								Log.e("api", "onResponseError: " + e.getMessage());
+								e.printStackTrace();
+							}
+						}
+					},
+					new Response.ErrorListener() {
+						@Override
+						public void onErrorResponse(VolleyError error) {
+							Log.e("api", "MappedImage:\n\tErrorResponse: " + getErrorMessage(error));
+						}
+					});
+
+			queue.add(jsonObjectRequest);
+		}
 	}
 
 	private String getErrorMessage(VolleyError error) {
