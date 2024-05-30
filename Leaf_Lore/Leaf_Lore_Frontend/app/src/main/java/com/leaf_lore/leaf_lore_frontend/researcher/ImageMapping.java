@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -27,6 +28,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
+import com.leaf_lore.leaf_lore_frontend.MainActivity;
 import com.leaf_lore.leaf_lore_frontend.R;
 import com.leaf_lore.leaf_lore_frontend.entity.MappedImage;
 import com.leaf_lore.leaf_lore_frontend.model.Image;
@@ -41,7 +43,7 @@ public class ImageMapping extends AppCompatActivity {
 	private Spinner spinCommonName, spinScientificName, spinShape, spinApex, spinMargin;
 	private ProgressBar progressBar;
 	private ConstraintLayout mapImageLayout;
-	private TextView loadingText, currentImageText;
+	private TextView loadingText, currentImageText, mappedImagesCountText;
 	private ImageView actionImage;
 	private Button btnPrev, btnNext, btnSubmit;
 	private ArrayList<Image> images;
@@ -55,10 +57,20 @@ public class ImageMapping extends AppCompatActivity {
 	private boolean isAllMarginsFetched = false;
 	private boolean runPeriodicCheck = true;
 
+	private String firebaseImageFolder;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image_mapping);
+
+		try {
+			firebaseImageFolder = getIntent().getStringExtra("firebaseImageFolder");
+		} catch (Exception e) {
+			Toast.makeText(this, "Source image folder not found!", Toast.LENGTH_SHORT).show();
+			finish();
+			startActivity(new Intent(this, MainActivity.class));
+		}
 
 		// Setting up the API calls
 		apiCalls = new ApiCalls(this, new ApiCallsConfirmer() {
@@ -102,6 +114,7 @@ public class ImageMapping extends AppCompatActivity {
 		spinMargin = findViewById(R.id.spinMargin);
 		btnSubmit = findViewById(R.id.Btn_SubmitMappedImage);
 		currentImageText = findViewById(R.id.TxtV_CurrentImageIndex);
+		mappedImagesCountText = findViewById(R.id.TxtV_MappedImagesCount);
 
 		// Initializing the images array
 		images = new ArrayList<>();
@@ -183,12 +196,14 @@ public class ImageMapping extends AppCompatActivity {
 		apiCalls.fetchAllApexes(spinApex);
 		apiCalls.fetchAllMargins(spinMargin);
 		fetchAllImagesFromFirebase();
+
+//		"Black_Background"
 	}
 
 	private void fetchAllImagesFromFirebase() {
 		FirebaseApp.initializeApp(this);
 
-		FirebaseStorage.getInstance().getReference().child("Black_Background").list(10).addOnSuccessListener(new OnSuccessListener<ListResult>() {
+		FirebaseStorage.getInstance().getReference().child(firebaseImageFolder).listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
 			@Override
 			public void onSuccess(ListResult listResult) {
 				totalFetchedImages = listResult.getItems().size();
@@ -306,7 +321,8 @@ public class ImageMapping extends AppCompatActivity {
 				@Override
 				public void onClick(View v) {
 					if (currentImageIndex > 0) {
-						addCurrentMappedImage();
+						if (isFormValid())
+							addCurrentMappedImage();
 
 						currentImageIndex--;
 						showImage(images.get(currentImageIndex).url());
@@ -349,7 +365,7 @@ public class ImageMapping extends AppCompatActivity {
 		MappedImage currentMappedImage = new MappedImage(
 				images.get(currentImageIndex).name(),
 				apiCalls.species.get(spinCommonName.getSelectedItemPosition()).id(),
-				"",
+				"b1d70b20-f508-4222-9872-4022f6f74839", // This should be the user id of the logged in user
 				apiCalls.shapes.get(spinShape.getSelectedItemPosition()).id(),
 				apiCalls.apexes.get(spinApex.getSelectedItemPosition()).id(),
 				apiCalls.margins.get(spinMargin.getSelectedItemPosition()).id());
@@ -362,6 +378,8 @@ public class ImageMapping extends AppCompatActivity {
 		mappedImages.forEach(mappedImage -> {
 			Log.d("api", "Mapped Image: " + mappedImage.getImage_name());
 		});
+
+		mappedImagesCountText.setText("Images Mapped: " + mappedImages.size());
 	}
 
 	private void resetForm() {
@@ -404,9 +422,23 @@ public class ImageMapping extends AppCompatActivity {
 		if (runPeriodicCheck)
 			runPeriodicCheckForApi();
 
-
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		btnSubmit.setOnClickListener(v -> {
-
+			builder.setMessage("Are you sure you want to submit " + mappedImages.size() + " mapped images?")
+					.setCancelable(false)
+					.setPositiveButton("Yes", (dialog, id) -> {
+						if (mappedImages.size() > 0) {
+							apiCalls.sendAllMappedImages(mappedImages);
+							mappedImages.forEach(mappedImage -> {
+								Log.d("api", "Mapped Image: " + mappedImage.getImage_name() + ", " + mappedImage.getSpecie_id() + ", " + mappedImage.getUser_id() + ", " + mappedImage.getShape_id() + ", " + mappedImage.getApex_id() + ", " + mappedImage.getMargin_id());
+							});
+							dialog.dismiss();
+							finish();
+						} else
+							Toast.makeText(ImageMapping.this, "No images to submit!", Toast.LENGTH_SHORT).show();
+					})
+					.setNegativeButton("No", (dialog, id) -> dialog.dismiss())
+					.show();
 		});
 	}
 }
