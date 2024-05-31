@@ -1,4 +1,9 @@
+import asyncio
+from contextlib import asynccontextmanager
+
 import schemas
+from alembic import command
+from alembic.config import Config
 from config import engine
 from controllers import (
     apex_controller,
@@ -13,6 +18,18 @@ from fastapi import FastAPI
 schemas.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+
+def run_migrations():
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, run_migrations)
+    yield
 
 
 @app.get("/")
