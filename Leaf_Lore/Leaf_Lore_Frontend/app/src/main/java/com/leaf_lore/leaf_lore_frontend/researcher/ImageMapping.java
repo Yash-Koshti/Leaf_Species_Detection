@@ -253,8 +253,13 @@ public class ImageMapping extends AppCompatActivity {
 									DELAY_TIME = 1000;
 									loadingText.setText("Loading images (" + ((imagesCount * 100) / totalFetchedImages) + "%)");
 									if (imagesCount == totalFetchedImages) {
-										makeContainerVisible();
 										runPeriodicCheck = false;
+										if (images.size() > 0)
+											makeContainerVisible();
+										else {
+											Toast.makeText(ImageMapping.this, "No data to map!", Toast.LENGTH_SHORT).show();
+											finish();
+										}
 									} else {
 										runPeriodicCheckForApi();
 									}
@@ -423,7 +428,10 @@ public class ImageMapping extends AppCompatActivity {
 			runPeriodicCheckForApi();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
 		btnSubmit.setOnClickListener(v -> {
+			if (!btnNext.isEnabled() && isFormValid())
+				addCurrentMappedImage();
 			builder.setMessage("Are you sure you want to submit " + mappedImages.size() + " mapped images?")
 					.setCancelable(false)
 					.setPositiveButton("Yes", (dialog, id) -> {

@@ -15,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 import com.leaf_lore.leaf_lore_frontend.researcher.ImageMapping;
+import com.leaf_lore.leaf_lore_frontend.researcher.ImageUpload;
 
 public class MainActivity extends AppCompatActivity {
 	DrawerLayout drawerLayout;
@@ -51,7 +52,11 @@ public class MainActivity extends AppCompatActivity {
 				@Override
 				public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 					if (item.getItemId() == R.id.action_map_image) {
-						startActivity(new Intent(MainActivity.this, ImageMapping.class).putExtra("firebaseImageFolder", "Black_Background"));
+						Intent intent = new Intent(MainActivity.this, ImageMapping.class);
+						intent.putExtra("firebaseImageFolder", "Black_Background");
+						startActivity(intent);
+					} else if (item.getItemId() == R.id.action_upload_image) {
+						startActivity(new Intent(MainActivity.this, ImageUpload.class));
 					}
 					drawerLayout.closeDrawer(GravityCompat.START);
 					return true;
