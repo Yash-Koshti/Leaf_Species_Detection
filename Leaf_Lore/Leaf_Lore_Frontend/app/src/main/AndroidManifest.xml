@@ -17,6 +17,9 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
         <activity
+            android:name=".researcher.ImageUpload"
+            android:exported="false" />
+        <activity
             android:name=".researcher.ImageMapping"
             android:exported="false" />
         <activity
