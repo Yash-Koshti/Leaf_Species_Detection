@@ -63,7 +63,7 @@ async def get_all_image_names(
             result=image_name_list,
         )
     else:
-        raise HTTPException(status_code=404, detail="No image names found!")
+        raise HTTPException(status_code=404, detail="No mapped image names found!")
 
 
 @mapped_image_router.delete(
