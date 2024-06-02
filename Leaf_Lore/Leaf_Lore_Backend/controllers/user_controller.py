@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from models import User, UserRequest, UserResponse
 from services.user_service import UserService
-from utils import get_user_service, get_current_user
+from utils import get_current_user, get_user_service
 
 user_router = APIRouter()
 
@@ -33,7 +33,8 @@ async def register(
 
 @user_router.get("/login")
 async def login(
-    current_user: User = Depends(get_current_user), service: UserService = Depends(get_user_service)
+    current_user: User = Depends(get_current_user),
+    service: UserService = Depends(get_user_service),
 ) -> UserResponse[User]:
     user = service.login(current_user)
     if user:
@@ -54,7 +55,9 @@ async def login(
 
 @user_router.post("/update_user", response_model=UserResponse[User])
 async def update_user(
-    request: UserRequest, service: UserService = Depends(get_user_service)
+    request: UserRequest,
+    service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
 ) -> UserResponse[User]:
     user = service.update_user(request.params)
     if user:
@@ -68,7 +71,9 @@ async def update_user(
 
 @user_router.delete("/delete_user", response_model=UserResponse[User])
 async def delete_user(
-    request: UserRequest, service: UserService = Depends(get_user_service)
+    request: UserRequest,
+    service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_user),
 ) -> UserResponse[User]:
     user = service.delete_user(request.params)
     if user:

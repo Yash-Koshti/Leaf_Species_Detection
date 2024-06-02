@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models import Apex, ApexRequest, ApexResponse
+from models import Apex, ApexRequest, ApexResponse, User
 from services.apex_service import ApexService
-from utils import get_apex_service
+from utils import get_apex_service, get_current_user
 
 apex_router = APIRouter()
 
@@ -31,6 +31,7 @@ async def get_all_apexes(
 async def create_apex(
     request: ApexRequest,
     service: ApexService = Depends(get_apex_service),
+    current_user: User = Depends(get_current_user),
 ) -> ApexResponse[Apex] | HTTPException:
     apex = service.create_apex(request.params)
     if apex:
@@ -48,6 +49,7 @@ async def create_apex(
 async def get_by_apex_id(
     request: ApexRequest,
     service: ApexService = Depends(get_apex_service),
+    current_user: User = Depends(get_current_user),
 ) -> ApexResponse[Apex] | HTTPException:
     apex = service.get_by_apex_id(request.params.id)
     if apex:
@@ -65,6 +67,7 @@ async def get_by_apex_id(
 async def delete_apex(
     request: ApexRequest,
     service: ApexService = Depends(get_apex_service),
+    current_user: User = Depends(get_current_user),
 ) -> ApexResponse[Apex] | HTTPException:
     apex = service.delete_apex(request.params)
     if apex:

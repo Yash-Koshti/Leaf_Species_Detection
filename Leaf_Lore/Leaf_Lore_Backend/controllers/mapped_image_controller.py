@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
-from utils import get_mapped_image_service
-from models import MappedImage, MappedImageRequest, MappedImageResponse
+from fastapi import APIRouter, Depends, HTTPException
+from models import MappedImage, MappedImageRequest, MappedImageResponse, User
 from services.mapped_image_service import MappedImageService
+from utils import get_current_user, get_mapped_image_service
 
 mapped_image_router = APIRouter()
 
@@ -16,6 +16,7 @@ async def read_root():
 )
 async def get_all_mapped_images(
     service: MappedImageService = Depends(get_mapped_image_service),
+    current_user: User = Depends(get_current_user),
 ) -> MappedImageResponse[list[MappedImage]] | HTTPException:
     mapped_images = service.get_all_mapped_images()
     if mapped_images:
@@ -35,6 +36,7 @@ async def get_all_mapped_images(
 async def create_mapped_image(
     request: MappedImageRequest,
     service: MappedImageService = Depends(get_mapped_image_service),
+    current_user: User = Depends(get_current_user),
 ) -> MappedImageResponse[MappedImage] | HTTPException:
     mapped_image = service.create_mapped_image(request.params)
     if mapped_image:
@@ -53,6 +55,7 @@ async def create_mapped_image(
 )
 async def get_all_image_names(
     service: MappedImageService = Depends(get_mapped_image_service),
+    current_user: User = Depends(get_current_user),
 ) -> MappedImageResponse[list[str]] | HTTPException:
     image_name_list = service.get_all_image_names()
     if image_name_list:
@@ -72,6 +75,7 @@ async def get_all_image_names(
 async def delete_mapped_image(
     request: MappedImageRequest,
     service: MappedImageService = Depends(get_mapped_image_service),
+    current_user: User = Depends(get_current_user),
 ):
     mapped_image = service.delete_mapped_image(request.params)
     if mapped_image:

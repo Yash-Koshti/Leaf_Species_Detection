@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models import Specie, SpecieRequest, SpecieResponse
+from models import Specie, SpecieRequest, SpecieResponse, User
 from services.specie_service import SpecieService
-from utils import get_specie_service
+from utils import get_current_user, get_specie_service
 
 specie_router = APIRouter()
 
@@ -31,6 +31,7 @@ async def get_all_species(
 async def create_specie(
     request: SpecieRequest,
     service: SpecieService = Depends(get_specie_service),
+    current_user: User = Depends(get_current_user),
 ) -> SpecieResponse[Specie] | HTTPException:
     specie = service.create_specie(request.params)
     if specie:
@@ -65,6 +66,7 @@ async def get_by_class_number(
 async def delete_specie(
     request: SpecieRequest,
     service: SpecieService = Depends(get_specie_service),
+    current_user: User = Depends(get_current_user),
 ) -> SpecieResponse[Specie] | HTTPException:
     specie = service.delete_specie(request.params)
     if specie:
