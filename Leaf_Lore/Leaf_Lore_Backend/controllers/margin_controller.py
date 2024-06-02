@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models import Margin, MarginRequest, MarginResponse
+from models import Margin, MarginRequest, MarginResponse, User
 from services.margin_service import MarginService
-from utils import get_margin_service
+from utils import get_current_user, get_margin_service
 
 margin_router = APIRouter()
 
@@ -31,6 +31,7 @@ async def get_all_margins(
 async def create_margin(
     request: MarginRequest,
     service: MarginService = Depends(get_margin_service),
+    current_user: User = Depends(get_current_user),
 ) -> MarginResponse[Margin] | HTTPException:
     margin = service.create_margin(request.params)
     if margin:
@@ -48,6 +49,7 @@ async def create_margin(
 async def get_by_margin_id(
     request: MarginRequest,
     service: MarginService = Depends(get_margin_service),
+    current_user: User = Depends(get_current_user),
 ) -> MarginResponse[Margin] | HTTPException:
     margin = service.get_by_margin_id(request.params.id)
     if margin:
@@ -65,6 +67,7 @@ async def get_by_margin_id(
 async def delete_margin(
     request: MarginRequest,
     service: MarginService = Depends(get_margin_service),
+    current_user: User = Depends(get_current_user),
 ) -> MarginResponse[Margin] | HTTPException:
     margin = service.delete_margin(request.params)
     if margin:

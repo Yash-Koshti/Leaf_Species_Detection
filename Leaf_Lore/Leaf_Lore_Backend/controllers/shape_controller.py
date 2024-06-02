@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models import Shape, ShapeRequest, ShapeResponse
+from models import Shape, ShapeRequest, ShapeResponse, User
 from services.shape_service import ShapeService
-from utils import get_shape_service
+from utils import get_current_user, get_shape_service
 
 shape_router = APIRouter()
 
@@ -31,6 +31,7 @@ async def get_all_shapes(
 async def create_shape(
     request: ShapeRequest,
     service: ShapeService = Depends(get_shape_service),
+    current_user: User = Depends(get_current_user),
 ) -> ShapeResponse[Shape] | HTTPException:
     shape = service.create_shape(request.params)
     if shape:
@@ -48,6 +49,7 @@ async def create_shape(
 async def get_by_shape_id(
     request: ShapeRequest,
     service: ShapeService = Depends(get_shape_service),
+    current_user: User = Depends(get_current_user),
 ) -> ShapeResponse[Shape] | HTTPException:
     shape = service.get_by_shape_id(request.params.id)
     if shape:
@@ -65,6 +67,7 @@ async def get_by_shape_id(
 async def delete_shape(
     request: ShapeRequest,
     service: ShapeService = Depends(get_shape_service),
+    current_user: User = Depends(get_current_user),
 ) -> ShapeResponse[Shape] | HTTPException:
     shape = service.delete_shape(request.params)
     if shape:
