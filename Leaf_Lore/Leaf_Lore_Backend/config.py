@@ -1,4 +1,4 @@
-import os
+from os import getenv
 
 import sqlalchemy.dialects.postgresql
 from dotenv import load_dotenv
@@ -10,6 +10,6 @@ from sqlalchemy.orm import sessionmaker
 load_dotenv()
 
 # Create the database engine
-engine = create_engine(os.getenv("DATABASE_URL"))
+engine = create_engine(getenv("DATABASE_URL"))
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
