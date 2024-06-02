@@ -3,9 +3,12 @@ from uuid import UUID
 
 from fastapi.logger import logger
 from models import User
+from passlib.context import CryptContext
 from schemas import UserSchema
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class UserService:
@@ -14,7 +17,10 @@ class UserService:
 
     def register(self, user: User) -> UserSchema | None:
         user = UserSchema(
-            name=user.name, email=user.email, password=user.password, role=user.role
+            name=user.name,
+            email=user.email,
+            password=pwd_context.hash(user.password),
+            role=user.role,
         )
         try:
             self.db.add(user)

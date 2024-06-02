@@ -3,6 +3,7 @@ from os import getenv
 
 from dotenv import load_dotenv
 from jose import jwt
+from fastapi.logger import logger
 from passlib.context import CryptContext
 from schemas import UserSchema
 from sqlalchemy.orm import Session
@@ -24,7 +25,11 @@ class AuthService:
         user = self.db.query(UserSchema).filter(UserSchema.name == username).first()
         if not user:
             return None
-        if not pwd_context.verify(password, user.password):
+        try:
+            if not pwd_context.verify(password, user.password):
+                return None
+        except Exception as e:
+            logger.error(f"Error occurred while verifying password: {e}")
             return None
         return user
 
