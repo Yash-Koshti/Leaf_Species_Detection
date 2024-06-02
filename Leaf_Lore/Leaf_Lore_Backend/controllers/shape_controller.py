@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from models import Shape, ShapeRequest, ShapeResponse, User
 from services.shape_service import ShapeService
 from utils import get_current_user, get_shape_service
@@ -18,13 +18,15 @@ async def get_all_shapes(
     shapes = service.get_all_shapes()
     if shapes:
         return ShapeResponse(
-            code=200,
+            code=status.HTTP_200_OK,
             status="Ok",
             message="Shapes fetched successfully",
             result=shapes,
         )
     else:
-        raise HTTPException(status_code=404, detail="No shapes found!")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="No shapes found!"
+        )
 
 
 @shape_router.post("/create_shape", response_model=ShapeResponse[Shape])
@@ -36,13 +38,16 @@ async def create_shape(
     shape = service.create_shape(request.params)
     if shape:
         return ShapeResponse(
-            code=200,
-            status="Ok",
+            code=status.HTTP_201_CREATED,
+            status="Created",
             message="Shape created successfully",
             result=shape,
         )
     else:
-        raise HTTPException(status_code=500, detail="Internal Server Error!")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal Server Error!",
+        )
 
 
 @shape_router.get("/get_by_shape_id", response_model=ShapeResponse[Shape])
@@ -54,13 +59,15 @@ async def get_by_shape_id(
     shape = service.get_by_shape_id(request.params.id)
     if shape:
         return ShapeResponse(
-            code=200,
+            code=status.HTTP_200_OK,
             status="Ok",
             message="Shape fetched successfully",
             result=shape,
         )
     else:
-        raise HTTPException(status_code=404, detail="Shape not found!")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Shape not found!"
+        )
 
 
 @shape_router.delete("/delete_shape", response_model=ShapeResponse[Shape])
@@ -72,10 +79,12 @@ async def delete_shape(
     shape = service.delete_shape(request.params)
     if shape:
         return ShapeResponse(
-            code=200,
+            code=status.HTTP_200_OK,
             status="Ok",
             message="Shape deleted successfully",
             result=shape,
         )
     else:
-        raise HTTPException(status_code=404, detail="Shape not found!")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Shape not found!"
+        )
