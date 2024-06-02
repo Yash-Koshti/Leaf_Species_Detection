@@ -17,6 +17,13 @@ async def register(
 ) -> UserResponse[User] | HTTPException:
     user = service.register(request.params)
     if user:
+        user = User(
+            name=user.name,
+            email=user.email,
+            role=user.role,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+        )
         return UserResponse(
             code=200, status="Ok", message="User created successfully", result=user
         )
