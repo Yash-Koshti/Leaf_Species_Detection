@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from models import User, UserRequest, UserResponse
 from services.user_service import UserService
-from utils import get_user_service
+from utils import get_user_service, get_current_user
 
 user_router = APIRouter()
 
@@ -26,11 +26,18 @@ async def register(
 
 @user_router.get("/login")
 async def login(
-    request: UserRequest, service: UserService = Depends(get_user_service)
+    current_user: User = Depends(get_current_user), service: UserService = Depends(get_user_service)
 ) -> UserResponse[User]:
-    user = service.login(request.params)
+    user = service.login(current_user)
     if user:
-        user = User(id=user.id, name=user.name, email=user.email, role=user.role)
+        user = User(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            role=user.role,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+        )
         return UserResponse(
             code=200, status="Ok", message="Login successful!", result=user
         )
