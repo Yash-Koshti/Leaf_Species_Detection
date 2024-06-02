@@ -13,6 +13,11 @@ class Role(str, Enum):
     RESEARCHER = "researcher"
 
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
 class User(BaseModel):
     id: Optional[UUID] = None
     name: Optional[str] = None

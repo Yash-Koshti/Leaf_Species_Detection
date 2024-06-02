@@ -27,15 +27,7 @@ class UserService:
             return None
 
     def login(self, user: User) -> UserSchema:
-        return (
-            self.db.query(UserSchema)
-            .filter(
-                UserSchema.email == user.email,
-                UserSchema.password == user.password,
-                UserSchema.role == user.role,
-            )
-            .first()
-        )
+        return self.db.query(UserSchema).filter(UserSchema.name == user.name).first()
 
     def get_user_by_id(self, user_id: UUID) -> UserSchema:
         return self.db.query(UserSchema).filter(UserSchema.id == user_id).first()

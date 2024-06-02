@@ -7,6 +7,7 @@ from alembic.config import Config
 from config import engine
 from controllers import (
     apex_controller,
+    auth_controller,
     mapped_image_controller,
     margin_controller,
     shape_controller,
@@ -77,6 +78,7 @@ async def read_root():
     }
 
 
+app.include_router(auth_controller.auth_router, prefix="/auth", tags=["auth"])
 app.include_router(user_controller.user_router, prefix="/user", tags=["User"])
 app.include_router(
     mapped_image_controller.mapped_image_router,
