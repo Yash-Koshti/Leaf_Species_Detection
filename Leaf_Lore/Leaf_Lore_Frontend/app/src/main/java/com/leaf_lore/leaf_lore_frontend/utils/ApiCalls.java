@@ -25,9 +25,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ApiCalls {
 	private static final String BASE_URL = "https://leaf-lore-server.onrender.com";
+	private static final String GET_TOKEN = "/auth/token";
 	private static final String ALL_SPECIES = "/specie/all_species";
 	private static final String ALL_MAPPED_IMAGE_NAMES = "/mapped_image/all_image_names";
 	private static final String ALL_SHAPES = "/shape/all_shapes";
@@ -49,6 +52,51 @@ public class ApiCalls {
 		this.support = new ApiCallsSupport(context);
 		this.queue = Volley.newRequestQueue(context);
 		this.confirmer = confirmer;
+	}
+
+	public void fetchToken(String username, String password) {
+		StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL + GET_TOKEN,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(@Nullable String response) {
+						try {
+							JSONObject responseObject = new JSONObject(response);
+							Log.d("api", "Token: " + responseObject.getString("access_token") + "\tToken type: " + responseObject.getString("token_type"));
+							confirmer.confirmTokenReceived(true);
+						} catch (JSONException e) {
+							Log.e("api", "onResponseError: " + e.getMessage());
+							e.printStackTrace();
+						}
+					}
+				},
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Log.e("api", "Token:\n\tErrorResponse: " + getErrorMessage(error));
+					}
+				}) {
+			@Override
+			protected Map<String, String> getParams() {
+				Map<String, String> params = new HashMap<>();
+				params.put("username", username);
+				params.put("password", password);
+				return params;
+			}
+
+			@Override
+			public String getBodyContentType() {
+				return "application/x-www-form-urlencoded; charset=UTF-8";
+			}
+
+			@Override
+			public Map<String, String> getHeaders() {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+				return headers;
+			}
+		};
+
+		queue.add(stringRequest);
 	}
 
 	public void fetchAllSpecies(Spinner spinCommonName, Spinner spinScientificName) {

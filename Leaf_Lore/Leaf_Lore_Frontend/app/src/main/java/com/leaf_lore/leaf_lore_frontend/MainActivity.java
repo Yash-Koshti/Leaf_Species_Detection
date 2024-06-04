@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		startActivity(new Intent(MainActivity.this, Login.class));
+		finish();
+
 		// Initialize the DrawerLayout and NavigationView
 		drawerLayout = findViewById(R.id.drawer_layout);
 		navigationView = findViewById(R.id.navigation_view);
