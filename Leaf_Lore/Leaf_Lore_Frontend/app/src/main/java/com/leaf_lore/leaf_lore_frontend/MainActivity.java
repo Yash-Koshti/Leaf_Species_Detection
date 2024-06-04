@@ -1,6 +1,7 @@
 package com.leaf_lore.leaf_lore_frontend;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -18,10 +19,11 @@ import com.leaf_lore.leaf_lore_frontend.researcher.ImageMapping;
 import com.leaf_lore.leaf_lore_frontend.researcher.ImageUpload;
 
 public class MainActivity extends AppCompatActivity {
-	DrawerLayout drawerLayout;
-	NavigationView navigationView;
-	ActionBarDrawerToggle drawerToggle;
-	MaterialToolbar toolbar;
+	private DrawerLayout drawerLayout;
+	private NavigationView navigationView;
+	private ActionBarDrawerToggle drawerToggle;
+	private MaterialToolbar toolbar;
+	private SharedPreferences sharedPreferences;
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -34,8 +36,12 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		sharedPreferences = getSharedPreferences("com.leaf_lore.leaf_lore_frontend", MODE_PRIVATE);
+
+//		if (!sharedPreferences.getBoolean("isLoggedIn", false)) {
 		startActivity(new Intent(MainActivity.this, Login.class));
 		finish();
+//		}
 
 		// Initialize the DrawerLayout and NavigationView
 		drawerLayout = findViewById(R.id.drawer_layout);
