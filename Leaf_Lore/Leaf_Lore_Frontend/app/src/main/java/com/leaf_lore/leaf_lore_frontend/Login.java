@@ -1,5 +1,8 @@
 package com.leaf_lore.leaf_lore_frontend;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -7,6 +10,8 @@ import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,13 +21,16 @@ import com.leaf_lore.leaf_lore_frontend.utils.ApiCalls;
 import com.leaf_lore.leaf_lore_frontend.utils.ApiCallsConfirmer;
 
 public class Login extends AppCompatActivity {
-	private final int DELAY_TIME = 10000;
+	private int DELAY_TIME = 10000;
 	private TextInputLayout inputUsernameLayout, inputPasswordLayout;
 	private EditText inputUsername, inputPassword;
 	private Button submitLogin;
 	private ProgressBar progressBar;
+	private TextView registerLink;
 	private ApiCalls apiCalls;
-	private boolean tokenReceived = false, runPeriodicCheck = false;
+	private Context applicationContext;
+	private SharedPreferences sharedPreferences;
+	private boolean isUserFetched = false, isTokenReceived = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +40,12 @@ public class Login extends AppCompatActivity {
 		apiCalls = new ApiCalls(this, new ApiCallsConfirmer() {
 			@Override
 			public void confirmTokenReceived(boolean confirm) {
-				tokenReceived = confirm;
+				isTokenReceived = confirm;
+			}
+
+			@Override
+			public void confirmUserFetched(boolean confirm) {
+				isUserFetched = confirm;
 			}
 
 			@Nullable
@@ -72,6 +85,10 @@ public class Login extends AppCompatActivity {
 		inputPassword = findViewById(R.id.TIET_LoginPassword);
 		submitLogin = findViewById(R.id.Btn_SubmitLoginForm);
 		progressBar = findViewById(R.id.PB_LoginProgress);
+		registerLink = findViewById(R.id.TxtV_LoginRegisterLink);
+
+		applicationContext = getApplicationContext();
+		sharedPreferences = applicationContext.getSharedPreferences("com.leaf_lore.leaf_lore_frontend", Context.MODE_PRIVATE);
 
 		inputUsername.addTextChangedListener(new TextWatcher() {
 			@Override
@@ -136,11 +153,16 @@ public class Login extends AppCompatActivity {
 			String passwordText = inputPassword.getText().toString();
 
 			if (isFormValid(usernameText, passwordText)) {
-				apiCalls.fetchToken(usernameText, passwordText);
+				apiCalls.fetchToken(usernameText, passwordText, sharedPreferences.edit());
 				progressBar.setVisibility(ProgressBar.VISIBLE);
 				submitLogin.setEnabled(false);
-				runPeriodicCheck = true;
+				runPeriodicCheckForApi();
 			}
+		});
+
+		registerLink.setOnClickListener(v -> {
+			startActivity(new Intent(Login.this, Register.class));
+			finish();
 		});
 	}
 
@@ -153,21 +175,19 @@ public class Login extends AppCompatActivity {
 		handler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				if (!tokenReceived) {
-					apiCalls.fetchToken(inputUsername.getText().toString(), inputPassword.getText().toString());
-					runPeriodicCheckForApi();
+				if (!isTokenReceived) {
+					apiCalls.fetchToken(inputUsername.getText().toString(), inputPassword.getText().toString(), sharedPreferences.edit());
+				} else if (!isUserFetched) {
+					DELAY_TIME = 3000;
+					apiCalls.fetchUser(sharedPreferences.edit());
+				} else {
+					Toast.makeText(Login.this, "Login Success!", Toast.LENGTH_SHORT).show();
+					startActivity(new Intent(Login.this, MainActivity.class));
+					finish();
+					return;
 				}
-				runPeriodicCheck = false;
+				runPeriodicCheckForApi();
 			}
 		}, DELAY_TIME);
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-
-		if (runPeriodicCheck) {
-			runPeriodicCheckForApi();
-		}
 	}
 }

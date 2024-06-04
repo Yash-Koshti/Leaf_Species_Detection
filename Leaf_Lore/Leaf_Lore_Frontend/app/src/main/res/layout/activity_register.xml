@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primary"
-    tools:context=".Login">
+    tools:context=".Register">
 
     <TextView
-        android:id="@+id/TxtV_LoginHeading"
+        android:id="@+id/TxtV_RegisterHeading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
@@ -16,12 +16,12 @@
         android:textColor="@color/white"
         android:textSize="40sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/cardView"
+        app:layout_constraintBottom_toTopOf="@+id/cardView2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
+        android:id="@+id/cardView2"
         android:layout_width="match_parent"
         android:layout_height="650dp"
         android:layout_marginTop="110dp"
@@ -36,11 +36,11 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/TxtV_LoginLabel"
+                android:id="@+id/TxtV_RegisterLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="60dp"
-                android:text="@string/login"
+                android:layout_marginTop="22dp"
+                android:text="@string/register"
                 android:textColor="@color/black"
                 android:textSize="30sp"
                 android:textStyle="bold"
@@ -49,11 +49,11 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/TIL_LoginUsername"
+                android:id="@+id/TIL_RegisterUsername"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="30dp"
                 android:hint="@string/username"
                 app:counterEnabled="true"
                 app:counterMaxLength="20"
@@ -64,18 +64,45 @@
                 app:helperTextTextColor="@color/errorColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/TxtV_LoginLabel">
+                app:layout_constraintTop_toBottomOf="@+id/TxtV_RegisterLabel">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/TIET_LoginUsername"
+                    android:id="@+id/TIEL_RegisterUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:maxLength="21" />
+                    android:maxLength="21"
+                    android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/TIL_LoginPassword"
+                android:id="@+id/TIL_RegisterEmail"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:hint="@string/email"
+                app:counterEnabled="true"
+                app:counterMaxLength="30"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/baseline_error_outline_24"
+                app:helperText="@string/required"
+                app:helperTextTextColor="@color/errorColor"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/TIL_RegisterUsername">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/TIET_RegisterEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textWebEmailAddress"
+                    android:maxLength="31"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/TIL_RegisterPassword"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
@@ -89,69 +116,51 @@
                 app:helperTextTextColor="@color/errorColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/TIL_LoginUsername">
+                app:layout_constraintTop_toBottomOf="@+id/TIL_RegisterEmail">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/TIET_LoginPassword"
+                    android:id="@+id/TIEL_RegisterPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/TIL_RegisterConfirmPassword"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:hint="@string/confirmPassword"
+                app:counterEnabled="true"
+                app:counterMaxLength="20"
+                app:endIconMode="password_toggle"
+                app:errorEnabled="true"
+                app:helperText="@string/required"
+                app:helperTextTextColor="@color/errorColor"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/TIL_RegisterPassword">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/TIEL_RegisterConfirmPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
-                android:id="@+id/Btn_SubmitLoginForm"
+                android:id="@+id/Btn_SubmitRegisterForm"
                 android:layout_width="300dp"
                 android:layout_height="65dp"
                 android:layout_marginTop="30dp"
                 android:backgroundTint="@color/accent"
-                android:text="@string/login"
+                android:text="@string/register"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/TIL_LoginPassword" />
-
-            <ProgressBar
-                android:id="@+id/PB_LoginProgress"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="110dp"
-                android:visibility="invisible"
-                app:layout_constraintBottom_toTopOf="@+id/Btn_SubmitLoginForm"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Btn_SubmitLoginForm">
-
-                <TextView
-                    android:id="@+id/TxtV_LoginRegisterSupportText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/registerSupportText"
-                    android:textSize="16dp" />
-
-                <TextView
-                    android:id="@+id/TxtV_LoginRegisterLink"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:paddingStart="5dp"
-                    android:text="@string/register"
-                    android:textColor="@color/accent"
-                    android:textSize="16dp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                app:layout_constraintTop_toBottomOf="@+id/TIL_RegisterConfirmPassword" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

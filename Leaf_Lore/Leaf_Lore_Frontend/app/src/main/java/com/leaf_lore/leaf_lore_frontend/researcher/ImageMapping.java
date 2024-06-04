@@ -80,6 +80,11 @@ public class ImageMapping extends AppCompatActivity {
 			}
 
 			@Override
+			public void confirmUserFetched(boolean confirm) {
+
+			}
+
+			@Override
 			public void confirmAllSpeciesFetched(boolean confirm) {
 				isAllSpeciesFetched = confirm;
 			}

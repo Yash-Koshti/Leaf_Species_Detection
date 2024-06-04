@@ -1,12 +1,14 @@
 package com.leaf_lore.leaf_lore_frontend.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -31,6 +33,7 @@ import java.util.Map;
 public class ApiCalls {
 	private static final String BASE_URL = "https://leaf-lore-server.onrender.com";
 	private static final String GET_TOKEN = "/auth/token";
+	private static final String USER_LOGIN = "/user/login";
 	private static final String ALL_SPECIES = "/specie/all_species";
 	private static final String ALL_MAPPED_IMAGE_NAMES = "/mapped_image/all_image_names";
 	private static final String ALL_SHAPES = "/shape/all_shapes";
@@ -54,7 +57,7 @@ public class ApiCalls {
 		this.confirmer = confirmer;
 	}
 
-	public void fetchToken(String username, String password) {
+	public void fetchToken(String username, String password, SharedPreferences.Editor editor) {
 		StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL + GET_TOKEN,
 				new Response.Listener<String>() {
 					@Override
@@ -63,6 +66,9 @@ public class ApiCalls {
 							JSONObject responseObject = new JSONObject(response);
 							Log.d("api", "Token: " + responseObject.getString("access_token") + "\tToken type: " + responseObject.getString("token_type"));
 							confirmer.confirmTokenReceived(true);
+							editor.putString("access_token", responseObject.getString("access_token"));
+							editor.putString("token_type", responseObject.getString("token_type"));
+							editor.apply();
 						} catch (JSONException e) {
 							Log.e("api", "onResponseError: " + e.getMessage());
 							e.printStackTrace();
@@ -92,6 +98,48 @@ public class ApiCalls {
 			public Map<String, String> getHeaders() {
 				Map<String, String> headers = new HashMap<>();
 				headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+				return headers;
+			}
+		};
+
+		queue.add(stringRequest);
+	}
+
+	public void fetchUser(SharedPreferences.Editor editor) {
+		StringRequest stringRequest = new StringRequest(Request.Method.GET, BASE_URL + USER_LOGIN,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						try {
+							JSONObject responseObject = new JSONObject(response);
+							Log.d("api", "Response: " + responseObject.getInt("code") + ", " + responseObject.getString("message"));
+							JSONObject result = responseObject.getJSONObject("result");
+							editor.putBoolean("isLoggedIn", true);
+							editor.putString("user_id", result.getString("id"));
+							editor.putString("username", result.getString("name"));
+							editor.putString("email", result.getString("email"));
+							editor.putString("role", result.getString("role"));
+							editor.putString("created_at", result.getString("created_at"));
+							editor.putString("updated_at", result.getString("updated_at"));
+							editor.apply();
+							confirmer.confirmUserFetched(true);
+						} catch (JSONException e) {
+							Log.e("api", "onResponseError: " + e.getMessage());
+							e.printStackTrace();
+						}
+					}
+				},
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Log.e("api", "User:\n\tErrorResponse: " + getErrorMessage(error));
+					}
+				}) {
+			@Override
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = new HashMap<>();
+				SharedPreferences sharedPreferences = context.getSharedPreferences("com.leaf_lore.leaf_lore_frontend", Context.MODE_PRIVATE);
+				headers.put("Authorization", sharedPreferences.getString("token_type", "") + " " + sharedPreferences.getString("access_token", ""));
 				return headers;
 			}
 		};
