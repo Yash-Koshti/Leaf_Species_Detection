@@ -75,6 +75,11 @@ public class ImageMapping extends AppCompatActivity {
 		// Setting up the API calls
 		apiCalls = new ApiCalls(this, new ApiCallsConfirmer() {
 			@Override
+			public void confirmTokenReceived(boolean confirm) {
+
+			}
+
+			@Override
 			public void confirmAllSpeciesFetched(boolean confirm) {
 				isAllSpeciesFetched = confirm;
 			}
@@ -370,7 +375,7 @@ public class ImageMapping extends AppCompatActivity {
 		MappedImage currentMappedImage = new MappedImage(
 				images.get(currentImageIndex).name(),
 				apiCalls.species.get(spinCommonName.getSelectedItemPosition()).id(),
-				"b1d70b20-f508-4222-9872-4022f6f74839", // This should be the user id of the logged in user
+				"7704708b-3c24-4fbe-af4c-f28c1e5bedb2", // This should be the user id of the logged in user
 				apiCalls.shapes.get(spinShape.getSelectedItemPosition()).id(),
 				apiCalls.apexes.get(spinApex.getSelectedItemPosition()).id(),
 				apiCalls.margins.get(spinMargin.getSelectedItemPosition()).id());

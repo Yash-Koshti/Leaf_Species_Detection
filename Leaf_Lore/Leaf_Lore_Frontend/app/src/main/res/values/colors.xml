@@ -9,7 +9,7 @@
 <resources>
     <!-- Main Colors -->
     <color name="primary">#2ECC71</color> <!-- Main green color -->
-    <color name="secondary">#DDFFEF</color> <!-- Light green color -->
+    <color name="secondary">#E8F5E9</color> <!-- Light green color -->
     <color name="accent">#3498DB</color> <!-- Blue accent color -->
 
     <!-- Derived Shades -->
