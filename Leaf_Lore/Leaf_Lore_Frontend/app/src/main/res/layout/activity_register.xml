@@ -67,7 +67,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/TxtV_RegisterLabel">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/TIEL_RegisterUsername"
+                    android:id="@+id/TIET_RegisterUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLength="21"
@@ -81,8 +81,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:hint="@string/email"
-                app:counterEnabled="true"
-                app:counterMaxLength="30"
                 app:endIconMode="clear_text"
                 app:errorEnabled="true"
                 app:errorIconDrawable="@drawable/baseline_error_outline_24"
@@ -97,7 +95,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textWebEmailAddress"
-                    android:maxLength="31"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -119,7 +116,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/TIL_RegisterEmail">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/TIEL_RegisterPassword"
+                    android:id="@+id/TIET_RegisterPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword" />
@@ -143,7 +140,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/TIL_RegisterPassword">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/TIEL_RegisterConfirmPassword"
+                    android:id="@+id/TIET_RegisterConfirmPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword" />
@@ -160,6 +157,17 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/TIL_RegisterConfirmPassword" />
+
+            <ProgressBar
+                android:id="@+id/PB_RegisterProgress"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

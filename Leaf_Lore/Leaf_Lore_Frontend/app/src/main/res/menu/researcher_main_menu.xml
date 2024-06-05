@@ -13,5 +13,9 @@
             android:id="@+id/action_map_image"
             android:icon="@drawable/baseline_add_photo_alternate_24"
             android:title="Map Images" />
+        <item
+            android:id="@+id/action_logout"
+            android:icon="@drawable/baseline_logout_24"
+            android:title="Logout" />
     </group>
 </menu>

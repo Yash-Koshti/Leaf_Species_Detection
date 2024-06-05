@@ -6,19 +6,19 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
+import android.text.SpannableString;
 import android.text.TextWatcher;
+import android.text.style.UnderlineSpan;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.leaf_lore.leaf_lore_frontend.utils.ApiCalls;
-import com.leaf_lore.leaf_lore_frontend.utils.ApiCallsConfirmer;
 
 public class Login extends AppCompatActivity {
 	private int DELAY_TIME = 10000;
@@ -30,54 +30,13 @@ public class Login extends AppCompatActivity {
 	private ApiCalls apiCalls;
 	private Context applicationContext;
 	private SharedPreferences sharedPreferences;
-	private boolean isUserFetched = false, isTokenReceived = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 
-		apiCalls = new ApiCalls(this, new ApiCallsConfirmer() {
-			@Override
-			public void confirmTokenReceived(boolean confirm) {
-				isTokenReceived = confirm;
-			}
-
-			@Override
-			public void confirmUserFetched(boolean confirm) {
-				isUserFetched = confirm;
-			}
-
-			@Nullable
-			@Override
-			public void confirmAllSpeciesFetched(boolean confirm) {
-
-			}
-
-			@Nullable
-			@Override
-			public void confirmAllImageNamesFetched(boolean confirm) {
-
-			}
-
-			@Nullable
-			@Override
-			public void confirmAllShapesFetched(boolean confirm) {
-
-			}
-
-			@Nullable
-			@Override
-			public void confirmAllApexesFetched(boolean confirm) {
-
-			}
-
-			@Nullable
-			@Override
-			public void confirmAllMarginsFetched(boolean confirm) {
-
-			}
-		});
+		apiCalls = new ApiCalls(this);
 
 		inputUsernameLayout = findViewById(R.id.TIL_LoginUsername);
 		inputPasswordLayout = findViewById(R.id.TIL_LoginPassword);
@@ -157,8 +116,14 @@ public class Login extends AppCompatActivity {
 				progressBar.setVisibility(ProgressBar.VISIBLE);
 				submitLogin.setEnabled(false);
 				runPeriodicCheckForApi();
+			} else {
+				Toast.makeText(Login.this, "Please fill in the form correctly", Toast.LENGTH_SHORT).show();
 			}
 		});
+
+		SpannableString spannableString = new SpannableString("Register here");
+		spannableString.setSpan(new UnderlineSpan(), 0, spannableString.length(), 0);
+		registerLink.setText(spannableString);
 
 		registerLink.setOnClickListener(v -> {
 			startActivity(new Intent(Login.this, Register.class));
@@ -167,7 +132,19 @@ public class Login extends AppCompatActivity {
 	}
 
 	private boolean isFormValid(String usernameText, String passwordText) {
-		return usernameText.length() < 21 && usernameText.length() > 3 && passwordText.length() < 21 && passwordText.length() > 7;
+		boolean isValid = true;
+
+		if (usernameText.length() < 4 || usernameText.length() > 20) {
+			inputUsernameLayout.setError("Username must be between 4 and 20 characters");
+			isValid = false;
+		}
+
+		if (passwordText.length() < 8 || passwordText.length() > 20) {
+			inputPasswordLayout.setError("Password must be between 8 and 20 characters");
+			isValid = false;
+		}
+
+		return isValid;
 	}
 
 	private void runPeriodicCheckForApi() {
@@ -175,9 +152,9 @@ public class Login extends AppCompatActivity {
 		handler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				if (!isTokenReceived) {
+				if (!apiCalls.isTokenFetched) {
 					apiCalls.fetchToken(inputUsername.getText().toString(), inputPassword.getText().toString(), sharedPreferences.edit());
-				} else if (!isUserFetched) {
+				} else if (!apiCalls.isUserFetched) {
 					DELAY_TIME = 3000;
 					apiCalls.fetchUser(sharedPreferences.edit());
 				} else {

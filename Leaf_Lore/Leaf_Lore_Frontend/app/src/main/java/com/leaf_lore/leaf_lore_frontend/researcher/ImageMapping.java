@@ -33,7 +33,6 @@ import com.leaf_lore.leaf_lore_frontend.R;
 import com.leaf_lore.leaf_lore_frontend.entity.MappedImage;
 import com.leaf_lore.leaf_lore_frontend.model.Image;
 import com.leaf_lore.leaf_lore_frontend.utils.ApiCalls;
-import com.leaf_lore.leaf_lore_frontend.utils.ApiCallsConfirmer;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -50,13 +49,7 @@ public class ImageMapping extends AppCompatActivity {
 	private ArrayList<MappedImage> mappedImages;
 	private ApiCalls apiCalls;
 	private int totalFetchedImages = -1, imagesCount = 0, currentImageIndex = 0;
-	private boolean isAllSpeciesFetched = false;
-	private boolean isAllMappedImageNamesFetched = false;
-	private boolean isAllShapesFetched = false;
-	private boolean isAllApexesFetched = false;
-	private boolean isAllMarginsFetched = false;
 	private boolean runPeriodicCheck = true;
-
 	private String firebaseImageFolder;
 
 	@Override
@@ -73,42 +66,7 @@ public class ImageMapping extends AppCompatActivity {
 		}
 
 		// Setting up the API calls
-		apiCalls = new ApiCalls(this, new ApiCallsConfirmer() {
-			@Override
-			public void confirmTokenReceived(boolean confirm) {
-
-			}
-
-			@Override
-			public void confirmUserFetched(boolean confirm) {
-
-			}
-
-			@Override
-			public void confirmAllSpeciesFetched(boolean confirm) {
-				isAllSpeciesFetched = confirm;
-			}
-
-			@Override
-			public void confirmAllImageNamesFetched(boolean confirm) {
-				isAllMappedImageNamesFetched = confirm;
-			}
-
-			@Override
-			public void confirmAllShapesFetched(boolean confirm) {
-				isAllShapesFetched = confirm;
-			}
-
-			@Override
-			public void confirmAllApexesFetched(boolean confirm) {
-				isAllApexesFetched = confirm;
-			}
-
-			@Override
-			public void confirmAllMarginsFetched(boolean confirm) {
-				isAllMarginsFetched = confirm;
-			}
-		});
+		apiCalls = new ApiCalls(this);
 
 		// Setting up the UI components
 		spinCommonName = findViewById(R.id.spinCommonName);
@@ -249,50 +207,36 @@ public class ImageMapping extends AppCompatActivity {
 		handler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				loadingText.setText("Fetching Mapped Images...");
-				if (isAllMappedImageNamesFetched) {
-					DELAY_TIME = 3000;
-					loadingText.setText("Loading Species...");
-					if (isAllSpeciesFetched) {
-						loadingText.setText("Loading Shapes...");
-						if (isAllShapesFetched) {
-							loadingText.setText("Loading Apexes...");
-							if (isAllApexesFetched) {
-								loadingText.setText("Loading Margins...");
-								if (isAllMarginsFetched) {
-									DELAY_TIME = 1000;
-									loadingText.setText("Loading images (" + ((imagesCount * 100) / totalFetchedImages) + "%)");
-									if (imagesCount == totalFetchedImages) {
-										runPeriodicCheck = false;
-										if (images.size() > 0)
-											makeContainerVisible();
-										else {
-											Toast.makeText(ImageMapping.this, "No data to map!", Toast.LENGTH_SHORT).show();
-											finish();
-										}
-									} else {
-										runPeriodicCheckForApi();
-									}
-								} else {
-									apiCalls.fetchAllMargins(spinMargin);
-									runPeriodicCheckForApi();
-								}
-							} else {
-								apiCalls.fetchAllApexes(spinApex);
-								runPeriodicCheckForApi();
-							}
-						} else {
-							apiCalls.fetchAllShapes(spinShape);
-							runPeriodicCheckForApi();
-						}
-					} else {
-						apiCalls.fetchAllSpecies(spinCommonName, spinScientificName);
-						runPeriodicCheckForApi();
-					}
-				} else {
+				if (!apiCalls.isAllMappedImageNamesFetched) {
 					apiCalls.fetchAllMappedImageNames();
-					runPeriodicCheckForApi();
+					loadingText.setText("Fetching Mapped Images...");
+				} else if (!apiCalls.isAllSpeciesFetched) {
+					apiCalls.fetchAllSpecies(spinCommonName, spinScientificName);
+					loadingText.setText("Loading Species...");
+					DELAY_TIME = 3000;
+				} else if (!apiCalls.isAllShapesFetched) {
+					apiCalls.fetchAllShapes(spinShape);
+					loadingText.setText("Loading Shapes...");
+				} else if (!apiCalls.isAllApexesFetched) {
+					apiCalls.fetchAllApexes(spinApex);
+					loadingText.setText("Loading Apexes...");
+				} else if (!apiCalls.isAllMarginsFetched) {
+					apiCalls.fetchAllMargins(spinMargin);
+					loadingText.setText("Loading Margins...");
+				} else if (imagesCount != totalFetchedImages) {
+					DELAY_TIME = 1000;
+					loadingText.setText("Loading images (" + ((imagesCount * 100) / totalFetchedImages) + "%)");
+				} else {
+					runPeriodicCheck = false;
+					if (images.size() > 0)
+						makeContainerVisible();
+					else {
+						Toast.makeText(ImageMapping.this, "No data to map!", Toast.LENGTH_SHORT).show();
+						finish();
+					}
+					return;
 				}
+				runPeriodicCheckForApi();
 			}
 		}, DELAY_TIME);
 	}

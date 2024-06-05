@@ -12,6 +12,7 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
@@ -34,27 +35,36 @@ public class ApiCalls {
 	private static final String BASE_URL = "https://leaf-lore-server.onrender.com";
 	private static final String GET_TOKEN = "/auth/token";
 	private static final String USER_LOGIN = "/user/login";
+	private static final String USER_REGISTER = "/user/register";
 	private static final String ALL_SPECIES = "/specie/all_species";
 	private static final String ALL_MAPPED_IMAGE_NAMES = "/mapped_image/all_image_names";
 	private static final String ALL_SHAPES = "/shape/all_shapes";
 	private static final String ALL_APEXES = "/apex/all_apexes";
 	private static final String ALL_MARGINS = "/margin/all_margins";
 	private static final String CREATE_MAPPED_IMAGE = "/mapped_image/create_mapped_image";
+	private final Context context;
+	private final ApiCallsSupport support;
+	private final RequestQueue queue;
+	private final SharedPreferences sharedPreferences;
 	public final ArrayList<Specie> species = new ArrayList<>();
 	public final ArrayList<String> imageNames = new ArrayList<>();
 	public final ArrayList<Shape> shapes = new ArrayList<>();
 	public final ArrayList<Apex> apexes = new ArrayList<>();
 	public final ArrayList<Margin> margins = new ArrayList<>();
-	private final Context context;
-	private final ApiCallsSupport support;
-	private final RequestQueue queue;
-	private final ApiCallsConfirmer confirmer;
+	public boolean isTokenFetched = false;
+	public boolean isUserFetched = false;
+	public boolean isUserRegistered = false;
+	public boolean isAllSpeciesFetched = false;
+	public boolean isAllMappedImageNamesFetched = false;
+	public boolean isAllShapesFetched = false;
+	public boolean isAllApexesFetched = false;
+	public boolean isAllMarginsFetched = false;
 
-	public ApiCalls(Context context, ApiCallsConfirmer confirmer) {
+	public ApiCalls(Context context) {
 		this.context = context;
 		this.support = new ApiCallsSupport(context);
 		this.queue = Volley.newRequestQueue(context);
-		this.confirmer = confirmer;
+		this.sharedPreferences = context.getSharedPreferences("com.leaf_lore.leaf_lore_frontend", Context.MODE_PRIVATE);
 	}
 
 	public void fetchToken(String username, String password, SharedPreferences.Editor editor) {
@@ -65,7 +75,12 @@ public class ApiCalls {
 						try {
 							JSONObject responseObject = new JSONObject(response);
 							Log.d("api", "Token: " + responseObject.getString("access_token") + "\tToken type: " + responseObject.getString("token_type"));
-							confirmer.confirmTokenReceived(true);
+							isTokenFetched = true;
+							// Get current time in milliseconds
+							long currentTime = System.currentTimeMillis();
+							// Add 30 minutes to current time in milliseconds
+							long expiryTime = currentTime + 1800000;
+							editor.putLong("expiry_time", expiryTime);
 							editor.putString("access_token", responseObject.getString("access_token"));
 							editor.putString("token_type", responseObject.getString("token_type"));
 							editor.apply();
@@ -122,7 +137,7 @@ public class ApiCalls {
 							editor.putString("created_at", result.getString("created_at"));
 							editor.putString("updated_at", result.getString("updated_at"));
 							editor.apply();
-							confirmer.confirmUserFetched(true);
+							isUserFetched = true;
 						} catch (JSONException e) {
 							Log.e("api", "onResponseError: " + e.getMessage());
 							e.printStackTrace();
@@ -138,13 +153,49 @@ public class ApiCalls {
 			@Override
 			public Map<String, String> getHeaders() throws AuthFailureError {
 				Map<String, String> headers = new HashMap<>();
-				SharedPreferences sharedPreferences = context.getSharedPreferences("com.leaf_lore.leaf_lore_frontend", Context.MODE_PRIVATE);
 				headers.put("Authorization", sharedPreferences.getString("token_type", "") + " " + sharedPreferences.getString("access_token", ""));
 				return headers;
 			}
 		};
 
 		queue.add(stringRequest);
+	}
+
+	public void registerUser(String username, String email, String password) {
+		JSONObject params = new JSONObject();
+		JSONObject jsonBody = new JSONObject();
+
+		try {
+			params.put("name", username);
+			params.put("email", email);
+			params.put("password", password);
+
+			jsonBody.put("params", params);
+		} catch (JSONException e) {
+			Log.e("api", "registerUserError: " + e.getMessage());
+			e.printStackTrace();
+		}
+		JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, BASE_URL + USER_REGISTER, jsonBody,
+				new Response.Listener<JSONObject>() {
+					@Override
+					public void onResponse(@Nullable JSONObject response) {
+						try {
+							Log.d("api", "Response: " + response.getInt("code") + ", " + response.getString("message"));
+							isUserRegistered = true;
+						} catch (JSONException e) {
+							Log.e("api", "onResponseError: " + e.getMessage());
+							e.printStackTrace();
+						}
+					}
+				},
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Log.e("api", "User:\n\tErrorResponse: " + getErrorMessage(error));
+					}
+				});
+
+		queue.add(jsonObjectRequest);
 	}
 
 	public void fetchAllSpecies(Spinner spinCommonName, Spinner spinScientificName) {
@@ -168,7 +219,7 @@ public class ApiCalls {
 												specieObject.getString("created_at"),
 												specieObject.getString("updated_at")));
 							}
-							confirmer.confirmAllSpeciesFetched(true);
+							isAllSpeciesFetched = true;
 						} catch (JSONException e) {
 							Log.e("api", "onResponseError: " + e.getMessage());
 							e.printStackTrace();
@@ -201,7 +252,7 @@ public class ApiCalls {
 								String imageName = result.getString(i);
 								imageNames.add(imageName);
 							}
-							confirmer.confirmAllImageNamesFetched(true);
+							isAllMappedImageNamesFetched = true;
 						} catch (JSONException e) {
 							Log.e("api", "onResponseError: " + e.getMessage());
 							e.printStackTrace();
@@ -213,9 +264,16 @@ public class ApiCalls {
 					public void onErrorResponse(VolleyError error) {
 						Log.e("api", "MappedImageNames:\n\tErrorResponse: " + getErrorMessage(error));
 						if (error.networkResponse != null && error.networkResponse.statusCode == 404)
-							confirmer.confirmAllImageNamesFetched(true);
+							isAllMappedImageNamesFetched = true;
 					}
-				});
+				}) {
+			@Override
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("Authorization", sharedPreferences.getString("token_type", "") + " " + sharedPreferences.getString("access_token", ""));
+				return headers;
+			}
+		};
 
 		queue.add(stringRequest);
 	}
@@ -239,7 +297,7 @@ public class ApiCalls {
 												shapeObject.getString("created_at"),
 												shapeObject.getString("updated_at")));
 							}
-							confirmer.confirmAllShapesFetched(true);
+							isAllShapesFetched = true;
 						} catch (JSONException e) {
 							Log.e("api", "onResponseError: " + e.getMessage());
 							e.printStackTrace();
@@ -277,7 +335,7 @@ public class ApiCalls {
 												apexObject.getString("created_at"),
 												apexObject.getString("updated_at")));
 							}
-							confirmer.confirmAllApexesFetched(true);
+							isAllApexesFetched = true;
 						} catch (JSONException e) {
 							Log.e("api", "onResponseError: " + e.getMessage());
 							e.printStackTrace();
@@ -315,7 +373,7 @@ public class ApiCalls {
 												marginObject.getString("created_at"),
 												marginObject.getString("updated_at")));
 							}
-							confirmer.confirmAllMarginsFetched(true);
+							isAllMarginsFetched = true;
 						} catch (JSONException e) {
 							Log.e("api", "onResponseError: " + e.getMessage());
 							e.printStackTrace();
@@ -358,7 +416,6 @@ public class ApiCalls {
 						public void onResponse(@Nullable JSONObject response) {
 							try {
 								Log.d("api", "Response: " + response.getInt("code") + ", " + response.getString("message"));
-//								confirmer.confirmMappedImageCreated(true);
 							} catch (JSONException e) {
 								Log.e("api", "onResponseError: " + e.getMessage());
 								e.printStackTrace();
@@ -370,7 +427,14 @@ public class ApiCalls {
 						public void onErrorResponse(VolleyError error) {
 							Log.e("api", "MappedImage:\n\tErrorResponse: " + getErrorMessage(error));
 						}
-					});
+					}) {
+				@Override
+				public Map<String, String> getHeaders() throws AuthFailureError {
+					Map<String, String> headers = new HashMap<>();
+					headers.put("Authorization", sharedPreferences.getString("token_type", "") + " " + sharedPreferences.getString("access_token", ""));
+					return headers;
+				}
+			};
 
 			queue.add(jsonObjectRequest);
 		}
@@ -379,7 +443,10 @@ public class ApiCalls {
 	private String getErrorMessage(VolleyError error) {
 		String errorMessage = "";
 		if (error.networkResponse == null) {
-			errorMessage = error.getMessage() != null ? error.getMessage() : error.toString();
+			if (error instanceof TimeoutError)
+				errorMessage = "Please wait";
+			else
+				errorMessage = error.getMessage() != null ? error.getMessage() : error.toString();
 		} else {
 			try {
 				JSONObject errorObject = new JSONObject(new String(error.networkResponse.data));
