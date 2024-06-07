@@ -10,6 +10,7 @@ from controllers import (
     auth_controller,
     mapped_image_controller,
     margin_controller,
+    model_controller,
     shape_controller,
     specie_controller,
     user_controller,
@@ -89,3 +90,4 @@ app.include_router(specie_controller.specie_router, prefix="/specie", tags=["Spe
 app.include_router(shape_controller.shape_router, prefix="/shape", tags=["Shape"])
 app.include_router(apex_controller.apex_router, prefix="/apex", tags=["Apex"])
 app.include_router(margin_controller.margin_router, prefix="/margin", tags=["Margin"])
+app.include_router(model_controller.model_router, prefix="/model", tags=["Model"])

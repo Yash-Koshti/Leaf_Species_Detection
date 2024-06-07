@@ -79,7 +79,7 @@ class MappedImageSchema(Base):
     __tablename__ = "MappedImages"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
-    image_name = Column(String, unique=True, index=True)
+    image_path = Column(String, unique=True, index=True)
     specie_id = Column(UUID(as_uuid=True), ForeignKey("Species.id"))
     user_id = Column(UUID(as_uuid=True), ForeignKey("Users.id"))
     shape_id = Column(UUID(as_uuid=True), ForeignKey("Shapes.id"))
@@ -93,7 +93,7 @@ class PredictionLogSchema(Base):
     __tablename__ = "PredictionLogs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
-    image_name = Column(String, unique=True, index=True)
+    image_path = Column(String, unique=True, index=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey("Users.id"))
     specie_id = Column(UUID(as_uuid=True), ForeignKey("Species.id"))
     shape_id = Column(UUID(as_uuid=True), ForeignKey("Shapes.id"))

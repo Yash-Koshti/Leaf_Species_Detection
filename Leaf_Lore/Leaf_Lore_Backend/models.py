@@ -178,3 +178,11 @@ class PredictionLogResponse(BaseModel, Generic[T]):
     status: str
     message: str
     result: Optional[T]
+
+
+class Prediction(BaseModel):
+    path: str
+
+
+class PredictionRequest(BaseModel):
+    params: Prediction = Field(...)
