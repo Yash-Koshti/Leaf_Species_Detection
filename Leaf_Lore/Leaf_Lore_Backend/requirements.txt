@@ -4,6 +4,6 @@ psycopg2
 alembic
 numpy
 pandas
-scikit-learn
 python-jose[cryptography]
 passlib[bcrypt]
+firebase-admin

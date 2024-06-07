@@ -1,8 +1,8 @@
-"""SAM, PredictionLog and UUID
+"""initial migration
 
-Revision ID: 101d94693ebd
-Revises: 9280c9426784
-Create Date: 2024-06-02 11:53:16.027796
+Revision ID: 254b6f2f6795
+Revises: 
+Create Date: 2024-06-07 18:57:04.642679
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '101d94693ebd'
-down_revision: Union[str, None] = '9280c9426784'
+revision: str = '254b6f2f6795'
+down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -47,6 +47,52 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_Shapes_id'), 'Shapes', ['id'], unique=False)
     op.create_index(op.f('ix_Shapes_shape_name'), 'Shapes', ['shape_name'], unique=True)
+    op.create_table('Species',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('class_number', sa.Integer(), nullable=True),
+    sa.Column('common_name', sa.String(), nullable=True),
+    sa.Column('scientific_name', sa.String(), nullable=True),
+    sa.Column('created_at', sa.String(), nullable=True),
+    sa.Column('updated_at', sa.String(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_Species_class_number'), 'Species', ['class_number'], unique=True)
+    op.create_index(op.f('ix_Species_common_name'), 'Species', ['common_name'], unique=False)
+    op.create_index(op.f('ix_Species_id'), 'Species', ['id'], unique=False)
+    op.create_index(op.f('ix_Species_scientific_name'), 'Species', ['scientific_name'], unique=True)
+    op.create_table('Users',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('name', sa.String(), nullable=True),
+    sa.Column('email', sa.String(), nullable=True),
+    sa.Column('password', sa.String(), nullable=True),
+    sa.Column('role', sa.String(), nullable=True),
+    sa.Column('created_at', sa.String(), nullable=True),
+    sa.Column('updated_at', sa.String(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_Users_email'), 'Users', ['email'], unique=True)
+    op.create_index(op.f('ix_Users_id'), 'Users', ['id'], unique=False)
+    op.create_index(op.f('ix_Users_name'), 'Users', ['name'], unique=True)
+    op.create_index(op.f('ix_Users_role'), 'Users', ['role'], unique=False)
+    op.create_table('MappedImages',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('image_name', sa.String(), nullable=True),
+    sa.Column('specie_id', sa.UUID(), nullable=True),
+    sa.Column('user_id', sa.UUID(), nullable=True),
+    sa.Column('shape_id', sa.UUID(), nullable=True),
+    sa.Column('apex_id', sa.UUID(), nullable=True),
+    sa.Column('margin_id', sa.UUID(), nullable=True),
+    sa.Column('created_at', sa.String(), nullable=True),
+    sa.Column('updated_at', sa.String(), nullable=True),
+    sa.ForeignKeyConstraint(['apex_id'], ['Apexes.id'], ),
+    sa.ForeignKeyConstraint(['margin_id'], ['Margins.id'], ),
+    sa.ForeignKeyConstraint(['shape_id'], ['Shapes.id'], ),
+    sa.ForeignKeyConstraint(['specie_id'], ['Species.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['Users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_MappedImages_id'), 'MappedImages', ['id'], unique=False)
+    op.create_index(op.f('ix_MappedImages_image_name'), 'MappedImages', ['image_name'], unique=True)
     op.create_table('PredictionLogs',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('image_name', sa.String(), nullable=True),
@@ -66,72 +112,27 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_PredictionLogs_id'), 'PredictionLogs', ['id'], unique=False)
     op.create_index(op.f('ix_PredictionLogs_image_name'), 'PredictionLogs', ['image_name'], unique=True)
-    op.add_column('MappedImages', sa.Column('shape_id', sa.UUID(), nullable=True))
-    op.add_column('MappedImages', sa.Column('apex_id', sa.UUID(), nullable=True))
-    op.add_column('MappedImages', sa.Column('margin_id', sa.UUID(), nullable=True))
-    op.alter_column('MappedImages', 'id',
-               existing_type=sa.INTEGER(),
-               type_=sa.UUID(),
-               existing_nullable=False,
-               existing_server_default=sa.text('nextval(\'"MappedImages_id_seq"\'::regclass)'))
-    op.alter_column('MappedImages', 'specie_id',
-               existing_type=sa.INTEGER(),
-               type_=sa.UUID(),
-               existing_nullable=True)
-    op.alter_column('MappedImages', 'user_id',
-               existing_type=sa.INTEGER(),
-               type_=sa.UUID(),
-               existing_nullable=True)
-    op.create_foreign_key(None, 'MappedImages', 'Apexes', ['apex_id'], ['id'])
-    op.create_foreign_key(None, 'MappedImages', 'Shapes', ['shape_id'], ['id'])
-    op.create_foreign_key(None, 'MappedImages', 'Margins', ['margin_id'], ['id'])
-    op.alter_column('Species', 'id',
-               existing_type=sa.INTEGER(),
-               type_=sa.UUID(),
-               existing_nullable=False,
-               existing_server_default=sa.text('nextval(\'"Species_id_seq"\'::regclass)'))
-    op.alter_column('Users', 'id',
-               existing_type=sa.INTEGER(),
-               type_=sa.UUID(),
-               existing_nullable=False,
-               existing_server_default=sa.text('nextval(\'"Users_id_seq"\'::regclass)'))
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
-    op.alter_column('Users', 'id',
-               existing_type=sa.UUID(),
-               type_=sa.INTEGER(),
-               existing_nullable=False,
-               existing_server_default=sa.text('nextval(\'"Users_id_seq"\'::regclass)'))
-    op.alter_column('Species', 'id',
-               existing_type=sa.UUID(),
-               type_=sa.INTEGER(),
-               existing_nullable=False,
-               existing_server_default=sa.text('nextval(\'"Species_id_seq"\'::regclass)'))
-    op.drop_constraint(None, 'MappedImages', type_='foreignkey')
-    op.drop_constraint(None, 'MappedImages', type_='foreignkey')
-    op.drop_constraint(None, 'MappedImages', type_='foreignkey')
-    op.alter_column('MappedImages', 'user_id',
-               existing_type=sa.UUID(),
-               type_=sa.INTEGER(),
-               existing_nullable=True)
-    op.alter_column('MappedImages', 'specie_id',
-               existing_type=sa.UUID(),
-               type_=sa.INTEGER(),
-               existing_nullable=True)
-    op.alter_column('MappedImages', 'id',
-               existing_type=sa.UUID(),
-               type_=sa.INTEGER(),
-               existing_nullable=False,
-               existing_server_default=sa.text('nextval(\'"MappedImages_id_seq"\'::regclass)'))
-    op.drop_column('MappedImages', 'margin_id')
-    op.drop_column('MappedImages', 'apex_id')
-    op.drop_column('MappedImages', 'shape_id')
     op.drop_index(op.f('ix_PredictionLogs_image_name'), table_name='PredictionLogs')
     op.drop_index(op.f('ix_PredictionLogs_id'), table_name='PredictionLogs')
     op.drop_table('PredictionLogs')
+    op.drop_index(op.f('ix_MappedImages_image_name'), table_name='MappedImages')
+    op.drop_index(op.f('ix_MappedImages_id'), table_name='MappedImages')
+    op.drop_table('MappedImages')
+    op.drop_index(op.f('ix_Users_role'), table_name='Users')
+    op.drop_index(op.f('ix_Users_name'), table_name='Users')
+    op.drop_index(op.f('ix_Users_id'), table_name='Users')
+    op.drop_index(op.f('ix_Users_email'), table_name='Users')
+    op.drop_table('Users')
+    op.drop_index(op.f('ix_Species_scientific_name'), table_name='Species')
+    op.drop_index(op.f('ix_Species_id'), table_name='Species')
+    op.drop_index(op.f('ix_Species_common_name'), table_name='Species')
+    op.drop_index(op.f('ix_Species_class_number'), table_name='Species')
+    op.drop_table('Species')
     op.drop_index(op.f('ix_Shapes_shape_name'), table_name='Shapes')
     op.drop_index(op.f('ix_Shapes_id'), table_name='Shapes')
     op.drop_table('Shapes')

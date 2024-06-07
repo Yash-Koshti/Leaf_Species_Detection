@@ -32,10 +32,10 @@ class MappedImageService:
             return None
 
     def get_all_image_names(self) -> list[str] | None:
-        image_name_rows = self.db.query(MappedImageSchema.image_name).all()
+        image_path_rows = self.db.query(MappedImageSchema.image_path).all()
         return (
-            [image_name_row[0] for image_name_row in image_name_rows]
-            if image_name_rows
+            [image_path_row[0] for image_path_row in image_path_rows]
+            if image_path_rows
             else None
         )
 

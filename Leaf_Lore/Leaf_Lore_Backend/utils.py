@@ -5,12 +5,14 @@ from config import SessionLocal
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from firebase import Firebase
 from jose import JWTError, jwt
 from models import User
 from services.apex_service import ApexService
 from services.auth_service import AuthService
 from services.mapped_image_service import MappedImageService
 from services.margin_service import MarginService
+from services.model_service import ModelService
 from services.prediction_log_service import PredictionLogService
 from services.shape_service import ShapeService
 from services.specie_service import SpecieService
@@ -81,3 +83,11 @@ def get_prediction_log_service(db: Session = Depends(get_db)) -> PredictionLogSe
 
 def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
     return AuthService(db)
+
+
+def get_model_service(
+    db: Session = Depends(get_db),
+    pls: PredictionLogService = Depends(get_prediction_log_service),
+    fb: Firebase = Depends(),
+) -> ModelService:
+    return ModelService(db, pls, fb)
