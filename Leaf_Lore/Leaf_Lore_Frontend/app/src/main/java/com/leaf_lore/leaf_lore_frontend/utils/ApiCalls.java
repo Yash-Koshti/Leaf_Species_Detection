@@ -20,6 +20,7 @@ import com.android.volley.toolbox.Volley;
 import com.leaf_lore.leaf_lore_frontend.entity.MappedImage;
 import com.leaf_lore.leaf_lore_frontend.model.Apex;
 import com.leaf_lore.leaf_lore_frontend.model.Margin;
+import com.leaf_lore.leaf_lore_frontend.model.Prediction;
 import com.leaf_lore.leaf_lore_frontend.model.Shape;
 import com.leaf_lore.leaf_lore_frontend.model.Specie;
 
@@ -41,6 +42,7 @@ public class ApiCalls {
 	private static final String ALL_SHAPES = "/shape/all_shapes";
 	private static final String ALL_APEXES = "/apex/all_apexes";
 	private static final String ALL_MARGINS = "/margin/all_margins";
+	private static final String MODEL_PREDICT = "/model/predict";
 	private static final String CREATE_MAPPED_IMAGE = "/mapped_image/create_mapped_image";
 	private final Context context;
 	private final ApiCallsSupport support;
@@ -51,6 +53,7 @@ public class ApiCalls {
 	public final ArrayList<Shape> shapes = new ArrayList<>();
 	public final ArrayList<Apex> apexes = new ArrayList<>();
 	public final ArrayList<Margin> margins = new ArrayList<>();
+	public final ArrayList<Prediction> predictions = new ArrayList<>();
 	public boolean isTokenFetched = false;
 	public boolean isUserFetched = false;
 	public boolean isUserRegistered = false;
@@ -59,6 +62,7 @@ public class ApiCalls {
 	public boolean isAllShapesFetched = false;
 	public boolean isAllApexesFetched = false;
 	public boolean isAllMarginsFetched = false;
+	public boolean isModelPredictionFetched = false;
 
 	public ApiCalls(Context context) {
 		this.context = context;
@@ -438,6 +442,65 @@ public class ApiCalls {
 
 			queue.add(jsonObjectRequest);
 		}
+	}
+
+	public void fetchModelPrediction(String image_path) {
+		StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL + MODEL_PREDICT,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						try {
+							predictions.clear();
+							JSONObject responseObject = new JSONObject(response);
+							Log.d("api", "Response: " + responseObject.getInt("code") + ", " + responseObject.getString("message"));
+							JSONArray result = responseObject.getJSONArray("result");
+							for (int i = 0; i < result.length(); i++) {
+								JSONObject predictionObject = result.getJSONObject(i);
+								predictions.add(
+										new Prediction(
+												predictionObject.getString("image_path"),
+												predictionObject.getInt("class_number"),
+												predictionObject.getString("common_name"),
+												predictionObject.getString("scientific_name"),
+												predictionObject.getInt("confidence")));
+							}
+							isModelPredictionFetched = true;
+						} catch (JSONException e) {
+							Log.e("api", "onResponseError: " + e.getMessage());
+							e.printStackTrace();
+						}
+					}
+				},
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Log.e("api", "Prediction:\n\tErrorResponse: " + getErrorMessage(error));
+					}
+				}) {
+			@Override
+			protected Map<String, String> getParams() {
+				Map<String, String> path = new HashMap<>();
+				path.put("path", image_path);
+				Map<String, String> params = new HashMap<>();
+				params.put("params", new JSONObject(path).toString());
+				return params;
+			}
+
+			@Override
+			public String getBodyContentType() {
+				return "application/x-www-form-urlencoded; charset=UTF-8";
+			}
+
+			@Override
+			public Map<String, String> getHeaders() {
+				Map<String, String> headers = new HashMap<>();
+				headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+				headers.put("Authorization", sharedPreferences.getString("token_type", "") + " " + sharedPreferences.getString("access_token", ""));
+				return headers;
+			}
+		};
+
+		queue.add(stringRequest);
 	}
 
 	private String getErrorMessage(VolleyError error) {

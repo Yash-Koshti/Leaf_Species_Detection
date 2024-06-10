@@ -16,6 +16,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
+import com.leaf_lore.leaf_lore_frontend.end_user.PredictionHistory;
+import com.leaf_lore.leaf_lore_frontend.end_user.SearchLeaf;
 import com.leaf_lore.leaf_lore_frontend.model.Role;
 import com.leaf_lore.leaf_lore_frontend.researcher.ImageMapping;
 import com.leaf_lore.leaf_lore_frontend.researcher.ImageUpload;
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
 			loggedInRole.setText(sharedPreferences.getString("role", "Your Role"));
 		} else if (role.equals(Role.RESEARCHER.toString().toLowerCase())) {
 			navigationView.inflateMenu(R.menu.researcher_main_menu);
-			
+
 			loggedInRole = navigationView.getHeaderView(0).findViewById(R.id.TxtV_LoggedInRole);
 			loggedInRole.setText(sharedPreferences.getString("role", "Your Role"));
 		} else {
@@ -96,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
 					} else if (item.getItemId() == R.id.action_upload_image) {
 						startActivity(new Intent(MainActivity.this, ImageUpload.class));
 					} else if (item.getItemId() == R.id.action_search_leaf) {
-
+						startActivity(new Intent(MainActivity.this, SearchLeaf.class));
 					} else if (item.getItemId() == R.id.action_history) {
-
+						startActivity(new Intent(MainActivity.this, PredictionHistory.class));
 					} else if (item.getItemId() == R.id.action_logout) {
 						sharedPreferences.edit().putBoolean("isLoggedIn", false).apply();
 						sharedPreferences.edit().putString("token", "").apply();

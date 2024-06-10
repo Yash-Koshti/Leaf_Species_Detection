@@ -17,6 +17,9 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
         <activity
+            android:name=".end_user.PredictionScreen"
+            android:exported="false" />
+        <activity
             android:name=".end_user.PredictionHistory"
             android:exported="false" />
         <activity
