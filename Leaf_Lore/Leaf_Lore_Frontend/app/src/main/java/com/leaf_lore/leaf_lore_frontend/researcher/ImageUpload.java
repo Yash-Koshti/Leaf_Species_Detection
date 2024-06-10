@@ -75,7 +75,7 @@ public class ImageUpload extends AppCompatActivity {
 		MaterialToolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		totalProgressBar = findViewById(R.id.progress);
+		totalProgressBar = findViewById(R.id.LProgress_UploadImage);
 		imageProgress = findViewById(R.id.Progress_OfAnImage);
 		selectImage = findViewById(R.id.Btn_SelectUploadImage);
 		uploadImage = findViewById(R.id.Btn_UploadImage);

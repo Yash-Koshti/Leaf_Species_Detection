@@ -17,7 +17,7 @@
         app:titleTextColor="?attr/colorSurface" />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/progress"
+        android:id="@+id/LProgress_UploadImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar"
@@ -68,7 +68,7 @@
         app:layout_constraintBottom_toTopOf="@+id/TxtV_UploadImageCount"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progress" />
+        app:layout_constraintTop_toBottomOf="@+id/LProgress_UploadImage" />
 
     <TextView
         android:id="@+id/TxtV_ImageProgressCount"

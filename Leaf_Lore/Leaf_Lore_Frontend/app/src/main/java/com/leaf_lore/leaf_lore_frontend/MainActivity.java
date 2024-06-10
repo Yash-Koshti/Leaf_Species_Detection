@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 		String role = sharedPreferences.getString("role", Role.END_USER.toString().toLowerCase());
 		if (role.equals(Role.ADMIN.toString().toLowerCase())) {
 //			navigationView.inflateMenu(R.menu.admin_menu);
-			navigationView.inflateMenu(R.menu.end_user_main_menu);
+			navigationView.inflateMenu(R.menu.researcher_main_menu);
 
 			loggedInRole = navigationView.getHeaderView(0).findViewById(R.id.TxtV_LoggedInRole);
 			loggedInRole.setText(sharedPreferences.getString("role", "Your Role"));
