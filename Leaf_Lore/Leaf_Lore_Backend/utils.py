@@ -89,6 +89,7 @@ def get_model_service(
     db: Session = Depends(get_db),
     prediction_log_service: PredictionLogService = Depends(get_prediction_log_service),
     specie_service: SpecieService = Depends(get_specie_service),
+    user_service: UserService = Depends(get_user_service),
     fb: Firebase = Depends(),
 ) -> ModelService:
-    return ModelService(db, prediction_log_service, specie_service, fb)
+    return ModelService(db, prediction_log_service, specie_service, user_service, fb)
