@@ -1,11 +1,37 @@
+import asyncio
+from contextlib import asynccontextmanager
+
 import schemas
+from alembic import command
+from alembic.config import Config
 from config import engine
-from controllers import mapped_image_controller, specie_controller, user_controller
+from controllers import (
+    apex_controller,
+    auth_controller,
+    mapped_image_controller,
+    margin_controller,
+    model_controller,
+    shape_controller,
+    specie_controller,
+    user_controller,
+)
 from fastapi import FastAPI
 
 schemas.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+
+def run_migrations():
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, run_migrations)
+    yield
 
 
 @app.get("/")
@@ -31,10 +57,29 @@ async def read_root():
                 "GET /specie/get_by_class_number",
                 "DELETE /specie/delete_specie",
             ],
+            "shape": [
+                "GET /shape/all_shapes",
+                "POST /shape/create_shape",
+                "GET /shape/get_by_shape_id",
+                "DELETE /shape/delete_shape",
+            ],
+            "apex": [
+                "GET /apex/all_apexes",
+                "POST /apex/create_apex",
+                "GET /apex/get_by_apex_id",
+                "DELETE /apex/delete_apex",
+            ],
+            "margin": [
+                "GET /margin/all_margins",
+                "POST /margin/create_margin",
+                "GET /margin/get_by_margin_id",
+                "DELETE /margin/delete_margin",
+            ],
         },
     }
 
 
+app.include_router(auth_controller.auth_router, prefix="/auth", tags=["auth"])
 app.include_router(user_controller.user_router, prefix="/user", tags=["User"])
 app.include_router(
     mapped_image_controller.mapped_image_router,
@@ -42,3 +87,7 @@ app.include_router(
     tags=["Mapped Image"],
 )
 app.include_router(specie_controller.specie_router, prefix="/specie", tags=["Specie"])
+app.include_router(shape_controller.shape_router, prefix="/shape", tags=["Shape"])
+app.include_router(apex_controller.apex_router, prefix="/apex", tags=["Apex"])
+app.include_router(margin_controller.margin_router, prefix="/margin", tags=["Margin"])
+app.include_router(model_controller.model_router, prefix="/model", tags=["Model"])

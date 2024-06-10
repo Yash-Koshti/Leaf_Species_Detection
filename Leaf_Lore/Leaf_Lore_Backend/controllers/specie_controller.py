@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
-
-from models import Specie, SpecieRequest, SpecieResponse
+from fastapi import APIRouter, Depends, HTTPException, status
+from models import Specie, SpecieRequest, SpecieResponse, User
 from services.specie_service import SpecieService
-from utils import get_specie_service
+from utils import get_current_user, get_specie_service
 
 specie_router = APIRouter()
 
@@ -19,30 +18,36 @@ async def get_all_species(
     species = service.get_all_species()
     if species:
         return SpecieResponse(
-            code=200,
+            code=status.HTTP_200_OK,
             status="Ok",
             message="Species fetched successfully",
             result=species,
         )
     else:
-        raise HTTPException(status_code=404, detail="No species found!")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="No species found!"
+        )
 
 
 @specie_router.post("/create_specie", response_model=SpecieResponse[Specie])
 async def create_specie(
     request: SpecieRequest,
     service: SpecieService = Depends(get_specie_service),
+    current_user: User = Depends(get_current_user),
 ) -> SpecieResponse[Specie] | HTTPException:
     specie = service.create_specie(request.params)
     if specie:
         return SpecieResponse(
-            code=200,
-            status="Ok",
+            code=status.HTTP_201_CREATED,
+            status="Created",
             message="Specie created successfully",
             result=specie,
         )
     else:
-        raise HTTPException(status_code=500, detail="Internal Server Error!")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal Server Error!",
+        )
 
 
 @specie_router.get("/get_by_class_number", response_model=SpecieResponse[Specie])
@@ -53,27 +58,32 @@ async def get_by_class_number(
     specie = service.get_by_class_number(request.params)
     if specie:
         return SpecieResponse(
-            code=200,
+            code=status.HTTP_200_OK,
             status="Ok",
             message="Specie fetched successfully",
             result=specie,
         )
     else:
-        raise HTTPException(status_code=404, detail="Specie not found!")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Specie not found!"
+        )
 
 
 @specie_router.delete("/delete_specie", response_model=SpecieResponse[Specie])
 async def delete_specie(
     request: SpecieRequest,
     service: SpecieService = Depends(get_specie_service),
+    current_user: User = Depends(get_current_user),
 ) -> SpecieResponse[Specie] | HTTPException:
     specie = service.delete_specie(request.params)
     if specie:
         return SpecieResponse(
-            code=200,
+            code=status.HTTP_200_OK,
             status="Ok",
             message="Specie deleted successfully",
             result=specie,
         )
     else:
-        raise HTTPException(status_code=404, detail="Specie not found!")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Specie not found!"
+        )

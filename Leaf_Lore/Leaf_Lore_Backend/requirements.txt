@@ -1,6 +1,10 @@
 fastapi[all]
 sqlalchemy
 psycopg2
+alembic
 numpy
 pandas
-scikit-learn
+python-jose[cryptography]
+passlib[bcrypt]
+firebase-admin
+opencv-python

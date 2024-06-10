@@ -10,4 +10,11 @@ __pycache__/
 
 seeder
 
-render.yaml
+darknet_repo
+
+images/*
+
+train.txt
+source.txt
+result.txt
+bad.list

@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">Leaf Lore</string>
+    <string name="map_image">Map Image</string>
+    <string name="open">Open Navigation Drawer</string>
+    <string name="close">Close Navigation Drawer</string>
+    <string name="login">Login</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="confirmPassword">Confirm Password</string>
+    <string name="email">Email</string>
+    <string name="role">Role</string>
+    <string-array name="roles">
+        <item>admin</item>
+        <item>researcher</item>
+        <item>end_user</item>
+    </string-array>
+    <string name="error">Error</string>
+    <string name="required">Required*</string>
+    <string name="registerSupportText">Don\'t have an account?</string>
+    <string name="register">Register</string>
 </resources>

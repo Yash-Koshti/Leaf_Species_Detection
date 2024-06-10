@@ -1,5 +1,34 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--<resources>-->
+<!--    <color name="black">#FF000000</color>-->
+<!--    <color name="white">#FFFFFFFF</color>-->
+<!--    <color name="primary">#2ECC71</color>-->
+<!--    <color name="secondary">#DDFFEF</color>-->
+<!--    <color name="accent">#3498DB</color>-->
+<!--</resources>-->
+
 <resources>
+    <!-- Main Colors -->
+    <color name="primary">#2ECC71</color> <!-- Main green color -->
+    <color name="secondary">#E8F5E9</color> <!-- Light green color -->
+    <color name="accent">#3498DB</color> <!-- Blue accent color -->
+
+    <!-- Derived Shades -->
+    <color name="primaryLightColor">#6BFF9B</color> <!-- Lighter shade of primary -->
+    <color name="primaryDarkColor">#229954</color> <!-- Darker shade of primary -->
+
+    <!-- Neutral Colors -->
+    <color name="backgroundColor">#FFFFFF</color> <!-- White background -->
+    <color name="surfaceColor">#F2F2F2</color> <!-- Very light grey for surface -->
+    <color name="errorColor">#B00020</color> <!-- Red for error states -->
+
+    <!-- Text Colors -->
+    <color name="onPrimaryColor">#FFFFFF</color> <!-- White text on primary -->
+    <color name="onSecondaryColor">#000000</color> <!-- Black text on secondary -->
+    <color name="onBackgroundColor">#000000</color> <!-- Black text on background -->
+    <color name="onSurfaceColor">#000000</color> <!-- Black text on surface -->
+    <color name="onErrorColor">#FFFFFF</color> <!-- White text on error -->
+
+    <!-- Additional Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>
