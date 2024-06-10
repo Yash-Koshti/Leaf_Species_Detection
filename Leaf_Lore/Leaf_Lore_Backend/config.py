@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 # Load the environment variables
 load_dotenv()
 
-if os.getenv("DATABASE_URL") is None:
+if getenv("DATABASE_URL") is None:
     raise Exception("DATABASE_URL environment variable is not set")
 
 # database_host = os.getenv("DATABASE_HOST", "db")

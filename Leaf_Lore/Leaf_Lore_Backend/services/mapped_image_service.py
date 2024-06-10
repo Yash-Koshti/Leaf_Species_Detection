@@ -14,7 +14,7 @@ class MappedImageService:
 
     def create_mapped_image(self, mapped_image: MappedImage) -> MappedImageSchema:
         mapped_image = MappedImageSchema(
-            image_name=mapped_image.image_name,
+            image_name=mapped_image.image_path,
             specie_id=mapped_image.specie_id,
             user_id=mapped_image.user_id,
             shape_id=mapped_image.shape_id,

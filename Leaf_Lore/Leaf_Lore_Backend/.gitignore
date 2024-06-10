@@ -17,4 +17,9 @@ images/*
 train.txt
 source.txt
 result.txt
+result*.txt
 bad.list
+
+predictions.jpg
+
+*.weights

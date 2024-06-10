@@ -3,7 +3,6 @@ import os
 import re
 import subprocess
 
-import cv2
 from firebase import Firebase
 from models import Prediction, Specie, User
 from schemas import PredictionLogSchema
@@ -37,18 +36,21 @@ class ModelService:
             f.write("./images/" + img_name)
 
         stdout, stderr = await self.__run_model_command()
+        print(stdout, stderr)
 
         data = self.__read_result()
 
-        predictions = self.__get_predictions(data)
+        predictions = self.__get_predictions(data, img_name)
 
-        os.rename("predictions.jpg", img_name)
-
-        self.firebase.upload_to("Predictions", img_name)
+        if os.path.exists("predictions.jpg"):
+            os.rename("predictions.jpg", img_name)
+            self.firebase.upload_to("Predictions", img_name)
+            os.remove(img_name)
 
         os.remove("images/" + img_name)
-        os.remove(img_name)
-        os.remove("bad.list")
+
+        if os.path.exists("bad.list"):
+            os.remove("bad.list")
 
         return predictions
 
@@ -86,13 +88,14 @@ class ModelService:
                     data[matches] = pred_dict
             return data
 
-    def __get_predictions(self, data: dict):
+    def __get_predictions(self, data: dict, image_name: str):
         predictions = []
 
         for value in data.values():
             specie = Specie(class_number=value["class_number"])
             specie = self.specie_service.get_by_class_number(specie)
             prediction = Prediction(
+                image_path="Predictions/" + image_name,
                 class_number=value["class_number"],
                 common_name=specie.common_name,
                 scientific_name=specie.scientific_name,

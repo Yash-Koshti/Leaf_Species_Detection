@@ -4,5 +4,29 @@ __pycache__/
 *.pyo
 *.pyd
 
+LeafLore_backend_flow_1.png
+manual_api_reqs.py
+
+.vscode/
+
+\.env
+\.env.*
+
+seeder
+
+darknet_repo
+
+images/*
+
+train.txt
+source.txt
+result.txt
+result*.txt
+bad.list
+
+predictions.jpg
+
+yolov4_last.weights
+
 # Ignore Docker-related files
 Dockerfile
