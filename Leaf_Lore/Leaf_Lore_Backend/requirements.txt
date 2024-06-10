@@ -7,3 +7,4 @@ pandas
 python-jose[cryptography]
 passlib[bcrypt]
 firebase-admin
+opencv-python
