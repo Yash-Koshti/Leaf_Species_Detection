@@ -11,3 +11,7 @@ class Firebase:
     def download_from(self, directory_name: str, img_name: str):
         blob = self.bucket.blob(f"{directory_name}/{img_name}")
         blob.download_to_filename(path.join(self.local_images_path, img_name))
+
+    def upload_to(self, directory_name: str, img_name: str):
+        blob = self.bucket.blob(f"{directory_name}/{img_name}")
+        blob.upload_from_filename(img_name)
