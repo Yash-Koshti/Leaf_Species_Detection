@@ -11,5 +11,5 @@ async def read_root():
 
 @model_router.post("/predict")
 async def predict(request: PredictionRequest, service: ModelService = Depends(get_model_service)):
-    prediction = service.predict(request.params.path)
+    prediction = await service.predict(request.params.path)
     return prediction

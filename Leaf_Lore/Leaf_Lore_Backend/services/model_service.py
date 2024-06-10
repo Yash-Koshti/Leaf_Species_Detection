@@ -1,5 +1,7 @@
-from os import path, walk
-
+import asyncio
+import os
+import subprocess
+import cv2
 from firebase import Firebase
 from schemas import PredictionLogSchema
 from services.prediction_log_service import PredictionLogService
@@ -19,14 +21,33 @@ class ModelService:
         self.prediction_log_service = prediction_log_service
         self.firebase = firebase
 
-    def predict(self, path: str):
+    async def predict(self, path: str):
         directory_name, img_name = path.split("/")
         self.firebase.download_from(directory_name, img_name)
 
-        file_paths = self.list_files_in_directory(self.firebase.local_images_path)
-        self.write_file_paths_to_txt(file_paths, "train.txt")
+        stdout, stderr = await self.run_command(
+            os.path.join(self.firebase.local_images_path, img_name)
+        )
 
-        return {}
+        return {
+            "stdout": str(stdout.decode()),
+            "stderr": str(stderr.decode()),
+            "message": "Prediction successful.",
+        }
+
+    async def run_command(self, image_path: str):
+        command = f"./darknet-master detector test ai_model\obj.data ai_model\yolov4.cfg ai_model\yolov4_final.weights -ext_output {image_path}"
+
+        loop = asyncio.get_running_loop()
+
+        def execute_command():
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            stdout, stderr = process.communicate()
+            return stdout, stderr
+
+        stdout, stderr = await loop.run_in_executor(None, execute_command)
+
+        return stdout, stderr
 
     def log_prediction(self, data):
         self.prediction_log_service.create_prediction_log(
@@ -42,9 +63,9 @@ class ModelService:
 
     def list_files_in_directory(self, directory):
         file_paths = []
-        for root, _, files in walk(directory):
+        for root, _, files in os.walk(directory):
             for file in files:
-                file_paths.append(path.join(root, file))
+                file_paths.append(os.path.join(root, file))
         return file_paths
 
     def write_file_paths_to_txt(self, file_paths, output_file):
