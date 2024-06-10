@@ -180,9 +180,23 @@ class PredictionLogResponse(BaseModel, Generic[T]):
     result: Optional[T]
 
 
-class Prediction(BaseModel):
+class Predict(BaseModel):
     path: str
 
 
+class Prediction(BaseModel):
+    class_number: int
+    common_name: str
+    scientific_name: str
+    confidence: int
+
+
 class PredictionRequest(BaseModel):
-    params: Prediction = Field(...)
+    params: Predict = Field(...)
+
+
+class PredictionResponse(BaseModel, Generic[T]):
+    code: int
+    status: str
+    message: str
+    result: Optional[T]
