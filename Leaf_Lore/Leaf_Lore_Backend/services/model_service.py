@@ -48,6 +48,7 @@ class ModelService:
 
         os.remove("images/" + img_name)
         os.remove(img_name)
+        os.remove("bad.list")
 
         return predictions
 
