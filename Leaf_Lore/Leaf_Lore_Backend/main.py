@@ -1,4 +1,5 @@
 import asyncio
+import os
 from contextlib import asynccontextmanager
 
 import schemas
@@ -27,9 +28,15 @@ def run_migrations():
     alembic_cfg = Config("alembic.ini")
     command.upgrade(alembic_cfg, "head")
 
+
 def download_model_weights():
     fb = Firebase()
     fb.download_from("Yolov4_weights", "yolov4_v1.weights", "ai_model/model_v1")
+
+
+def create_dir():
+    if not os.path.exists("images"):
+        os.makedirs("images")
 
 
 @asynccontextmanager
@@ -38,7 +45,10 @@ async def lifespan(app: FastAPI):
     await loop.run_in_executor(None, run_migrations)
     yield
 
+
 download_model_weights()
+create_dir()
+
 
 @app.get("/")
 async def read_root():
