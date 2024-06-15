@@ -53,7 +53,7 @@ class ModelService:
         return predictions
 
     async def __run_model_command(self):
-        command = "./darknet detector test ./ai_model/model_v1/obj.data ./ai_model/model_v1/yolov4.cfg ./ai_model/model_v1/yolov4_final.weights -dont_show -ext_output < source.txt > result.txt"
+        command = "./darknet detector test ./ai_model/model_v1/obj.data ./ai_model/model_v1/yolov4.cfg ./ai_model/model_v1/yolov4_v1.weights -dont_show -ext_output < source.txt > result.txt"
 
         loop = asyncio.get_running_loop()
 

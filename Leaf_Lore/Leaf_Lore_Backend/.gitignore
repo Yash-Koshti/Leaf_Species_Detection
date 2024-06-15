@@ -14,6 +14,10 @@ darknet_repo
 
 images/*
 
+*.weights
+result*.txt
+predictions.jpg
+
 train.txt
 source.txt
 result.txt
