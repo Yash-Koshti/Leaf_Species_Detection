@@ -37,6 +37,8 @@ class ModelService:
             f.write("./images/" + img_name)
 
         stdout, stderr = await self.__run_model_command()
+        print("Stdout:", stdout)
+        print("Stderr:", stderr)
 
         data = self.__read_result()
 
