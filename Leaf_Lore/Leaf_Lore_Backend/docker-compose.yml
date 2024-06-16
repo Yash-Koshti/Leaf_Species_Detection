@@ -12,3 +12,8 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       SECRET_KEY: ${SECRET_KEY}
       STORAGE_BUCKET: ${STORAGE_BUCKET}
+      PYTHONUNBUFFERED: 1
+      DARKNET_PATH: /darknet
+      LD_LIBRARY_PATH: /darknet:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+    volumes:
+      - .:/app

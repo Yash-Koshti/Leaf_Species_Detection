@@ -1,5 +1,0 @@
-classes=54
-train = ./ai_model/train.txt
-valid = ./ai_model/train.txt
-names = ./ai_model/obj.names
-backup = /home/abhishek/Documents/Khushi/weights/29_May

@@ -36,7 +36,8 @@ class ModelService:
             f.write("./images/" + img_name)
 
         stdout, stderr = await self.__run_model_command()
-        print(stdout, stderr)
+        print("Stdout:", stdout)
+        print("Stderr:", stderr)
 
         data = self.__read_result()
 
@@ -55,7 +56,7 @@ class ModelService:
         return predictions
 
     async def __run_model_command(self):
-        command = "./darknet detector test ./ai_model/obj.data ./ai_model/yolov4.cfg ./ai_model/yolov4_final.weights -dont_show -ext_output < source.txt > result.txt"
+        command = "./darknet detector test ./ai_model/model_v1/obj.data ./ai_model/model_v1/yolov4.cfg ./ai_model/model_v1/yolov4_v1.weights -dont_show -ext_output < source.txt > result.txt"
 
         loop = asyncio.get_running_loop()
 

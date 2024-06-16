@@ -1,4 +1,5 @@
 import asyncio
+import os
 from contextlib import asynccontextmanager
 
 import schemas
@@ -16,6 +17,7 @@ from controllers import (
     user_controller,
 )
 from fastapi import FastAPI
+from firebase import Firebase
 
 schemas.Base.metadata.create_all(bind=engine)
 
@@ -27,11 +29,25 @@ def run_migrations():
     command.upgrade(alembic_cfg, "head")
 
 
+def download_model_weights():
+    fb = Firebase()
+    fb.download_from("Yolov4_weights", "yolov4_v1.weights", "ai_model/model_v1")
+
+
+def create_dir():
+    if not os.path.exists("images"):
+        os.makedirs("images")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(None, run_migrations)
     yield
+
+
+download_model_weights()
+create_dir()
 
 
 @app.get("/")

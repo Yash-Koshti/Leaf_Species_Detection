@@ -11,8 +11,7 @@ RUN apt-get update && \
     apt-get install -y libpq-dev gcc g++ && \
     apt-get clean
 
-    
-    # Install OpenCV dependencies and OpenCV itself
+# Install OpenCV dependencies and OpenCV itself
 RUN apt-get update && \
     apt-get install -y \
     libopencv-dev \
@@ -32,44 +31,38 @@ RUN apt-get update && \
     libgtk2.0-dev \
     libatlas-base-dev \
     gfortran \
-    python3-dev && \
+    python3-dev \
+    libgl1-mesa-glx && \
     apt-get clean
-    
-# Clone OpenCV and OpenCV contrib repositories
-RUN git clone https://github.com/opencv/opencv.git && \
-git clone https://github.com/opencv/opencv_contrib.git
 
-# Create a build directory
-RUN mkdir -p opencv/build
+# Create symlinks for OpenCV libraries to match expected versions
+RUN ln -s /usr/lib/x86_64-linux-gnu/libopencv_highgui.so.4.6.0 /usr/lib/x86_64-linux-gnu/libopencv_highgui.so.4.5d && \
+    ln -s /usr/lib/x86_64-linux-gnu/libopencv_videoio.so.4.6.0 /usr/lib/x86_64-linux-gnu/libopencv_videoio.so.4.5d && \
+    ln -s /usr/lib/x86_64-linux-gnu/libopencv_imgcodecs.so.4.6.0 /usr/lib/x86_64-linux-gnu/libopencv_imgcodecs.so.4.5d && \
+    ln -s /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.6.0 /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.5d && \
+    ln -s /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.6.0 /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.5d
 
-# Configure OpenCV build
-WORKDIR /app/opencv/build
-RUN cmake -D CMAKE_BUILD_TYPE=RELEASE \
-    -D CMAKE_INSTALL_PREFIX=/usr/local \
-    -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules \
-    -D BUILD_EXAMPLES=OFF ..
-
-# Build and install OpenCV
-RUN make -j$(nproc) && \
-make install && \
-ldconfig
+# Check if the symlinks were created correctly
+RUN ls -l /usr/lib/x86_64-linux-gnu | grep libopencv
 
 # Clone and build Darknet with OpenCV support
 RUN git clone https://github.com/AlexeyAB/darknet.git /darknet && \
     cd /darknet && \
-    sed -i 's/OPENCV=0/OPENCV=1/; s/AVX=0/AVX=1/; s/OPENMP=0/OPENMP=1/' Makefile && \
+    sed -i 's/OPENCV=0/OPENCV=1/; s/AVX=0/AVX=1/; s/OPENMP=0/OPENMP=1/; s/GPU=1/GPU=0/; s/CUDNN=1/CUDNN=0/' Makefile && \
     make
 
-# Set Darknet as a library path
+# Copy Darknet executable to /app
+RUN cp /darknet/darknet /app/darknet
+
+# Set Darknet and OpenCV library paths
 ENV DARKNET_PATH=/darknet
-ENV LD_LIBRARY_PATH=$DARKNET_PATH:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=$DARKNET_PATH:$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu
 
 # Return to the working directory
 WORKDIR /app
 
 # Copy the requirements file
 COPY requirements.txt .
-COPY ./ai_model/yolov4_final.weights ./ai_model/yolov4_final.weights
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
