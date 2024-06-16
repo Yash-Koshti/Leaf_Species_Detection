@@ -1,5 +1,6 @@
 import asyncio
 import os
+import subprocess
 from contextlib import asynccontextmanager
 
 import schemas
@@ -39,6 +40,21 @@ def create_dir():
         os.makedirs("images")
 
 
+async def run_command(command: str):
+    loop = asyncio.get_running_loop()
+
+    def execute_command():
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+        )
+        stdout, stderr = process.communicate()
+        return stdout, stderr
+
+    stdout, stderr = await loop.run_in_executor(None, execute_command)
+    print("Stdout:", stdout)
+    print("Stderr:", stderr)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     loop = asyncio.get_event_loop()
@@ -52,6 +68,7 @@ create_dir()
 
 @app.get("/")
 async def read_root():
+    await run_command("ls -l /usr/lib/x86_64-linux-gnu | grep opencv")
     return {
         "Hello": "This is Leaf Lore server! I'm ready to detect leaves!",
         "routes": {
