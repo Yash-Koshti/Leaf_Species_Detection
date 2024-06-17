@@ -14,8 +14,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.leaf_lore.leaf_lore_frontend.R;
 import com.leaf_lore.leaf_lore_frontend.model.Prediction;
 
-import java.util.ArrayList;
-
 public class PredictionScreen extends AppCompatActivity {
 	ImageView imageView;
 	TextView predictionText;
@@ -29,9 +27,8 @@ public class PredictionScreen extends AppCompatActivity {
 		predictionText = findViewById(R.id.TxtV_PredictionResult);
 
 		Intent intent = getIntent();
-		ArrayList<Prediction> predictions = (ArrayList<Prediction>) intent.getSerializableExtra("predictions");
+		Prediction prediction = new Prediction(intent.getStringExtra("image_path"), intent.getIntExtra("class_number", 0), intent.getStringExtra("common_name"), intent.getStringExtra("scientific_name"), intent.getIntExtra("confidence", 0));
 
-		Prediction prediction = predictions.get(0);
 		predictionText.setText(prediction.common_name() + ": " + prediction.confidence() + "%");
 
 		displayImage(prediction.image_path());

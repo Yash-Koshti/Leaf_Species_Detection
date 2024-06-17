@@ -31,12 +31,13 @@ import com.leaf_lore.leaf_lore_frontend.R;
 import com.leaf_lore.leaf_lore_frontend.utils.ApiCalls;
 
 public class SearchLeaf extends AppCompatActivity {
-	private final int DELAY_TIME = 10000;
+	private final int DELAY_TIME = 50000;
 	StorageReference storageReference;
 	ProgressBar progressBar, searchingProgressBar;
 	ImageView imageView;
 	Button selectImage, searchImage;
 	Uri image;
+	private String pathString;
 	private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
 		@Override
 		public void onActivityResult(ActivityResult result) {
@@ -85,7 +86,7 @@ public class SearchLeaf extends AppCompatActivity {
 	}
 
 	private void uploadImage(Uri image) {
-		String pathString = "Users_images/" + getFileName(image);
+		pathString = "Users_images/" + getFileName(image);
 		StorageReference reference = storageReference.child(pathString);
 		reference.putFile(image).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 			@Override
@@ -131,6 +132,7 @@ public class SearchLeaf extends AppCompatActivity {
 			@Override
 			public void run() {
 				if (!apiCalls.isModelPredictionFetched) {
+					apiCalls.fetchModelPrediction(pathString);
 					runPeriodicCheckForApi();
 				} else {
 					if (apiCalls.predictions.isEmpty()) {
@@ -138,7 +140,11 @@ public class SearchLeaf extends AppCompatActivity {
 						return;
 					}
 					Intent intent = new Intent(SearchLeaf.this, PredictionScreen.class);
-					intent.putExtra("predictions", apiCalls.predictions);
+					intent.putExtra("image_path", apiCalls.predictions.get(0).image_path());
+					intent.putExtra("class_number", apiCalls.predictions.get(0).class_number());
+					intent.putExtra("common_name", apiCalls.predictions.get(0).common_name());
+					intent.putExtra("scientific_name", apiCalls.predictions.get(0).scientific_name());
+					intent.putExtra("confidence", apiCalls.predictions.get(0).confidence());
 					startActivity(intent);
 					finish();
 				}

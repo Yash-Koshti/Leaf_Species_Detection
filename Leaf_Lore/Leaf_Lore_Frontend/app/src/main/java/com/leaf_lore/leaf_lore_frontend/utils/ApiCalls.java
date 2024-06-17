@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -28,12 +29,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ApiCalls {
-	private static final String BASE_URL = "https://leaf-lore-server.onrender.com";
+	private static final String BASE_URL = "http://54.165.25.33:80";
 	private static final String GET_TOKEN = "/auth/token";
 	private static final String USER_LOGIN = "/user/login";
 	private static final String USER_REGISTER = "/user/register";
@@ -445,15 +447,14 @@ public class ApiCalls {
 	}
 
 	public void fetchModelPrediction(String image_path) {
-		StringRequest stringRequest = new StringRequest(Request.Method.POST, BASE_URL + MODEL_PREDICT,
-				new Response.Listener<String>() {
+		JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, BASE_URL + MODEL_PREDICT, null,
+				new Response.Listener<JSONObject>() {
 					@Override
-					public void onResponse(String response) {
+					public void onResponse(JSONObject response) {
 						try {
 							predictions.clear();
-							JSONObject responseObject = new JSONObject(response);
-							Log.d("api", "Response: " + responseObject.getInt("code") + ", " + responseObject.getString("message"));
-							JSONArray result = responseObject.getJSONArray("result");
+							Log.d("api", "Response: " + response.getInt("code") + ", " + response.getString("message"));
+							JSONArray result = response.getJSONArray("result");
 							for (int i = 0; i < result.length(); i++) {
 								JSONObject predictionObject = result.getJSONObject(i);
 								predictions.add(
@@ -478,34 +479,37 @@ public class ApiCalls {
 					}
 				}) {
 			@Override
-			protected Map<String, String> getParams() {
-				Map<String, String> path = new HashMap<>();
-				path.put("path", image_path);
-				Map<String, String> params = new HashMap<>();
-				params.put("params", new JSONObject(path).toString());
-				return params;
-			}
-
-			@Override
-			public String getBodyContentType() {
-				return "application/x-www-form-urlencoded; charset=UTF-8";
+			public byte[] getBody() {
+				Map<String, Object> params = new HashMap<>();
+				Map<String, String> pathMap = new HashMap<>();
+				pathMap.put("path", image_path);
+				params.put("params", pathMap);
+				return new JSONObject(params).toString().getBytes(StandardCharsets.UTF_8);
 			}
 
 			@Override
 			public Map<String, String> getHeaders() {
 				Map<String, String> headers = new HashMap<>();
-				headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+				headers.put("Content-Type", "application/json");
 				headers.put("Authorization", sharedPreferences.getString("token_type", "") + " " + sharedPreferences.getString("access_token", ""));
 				return headers;
 			}
 		};
 
-		queue.add(stringRequest);
+		int socketTimeout = 50000; // 50 seconds
+		// Set timeout values
+		jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+				socketTimeout,
+				DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+				DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+		queue.add(jsonObjectRequest);
 	}
 
 	private String getErrorMessage(VolleyError error) {
 		String errorMessage = "";
 		if (error.networkResponse == null) {
+			Log.e("api", "Error: " + error);
 			if (error instanceof TimeoutError)
 				errorMessage = "Please wait";
 			else
