@@ -51,8 +51,12 @@ async def run_command(command: str):
         return stdout, stderr
 
     stdout, stderr = await loop.run_in_executor(None, execute_command)
-    print("Stdout:", stdout)
-    print("Stderr:", stderr)
+    print("Stdout:", convert_byte_to_string(stdout))
+    print("Stderr:", convert_byte_to_string(stderr))
+
+
+def convert_byte_to_string(byte_string):
+    return "\n".join([line.decode("utf-8") for line in byte_string.split(b"\n")])
 
 
 @asynccontextmanager
@@ -68,7 +72,12 @@ create_dir()
 
 @app.get("/")
 async def read_root():
-    await run_command("ls -l /usr/lib/x86_64-linux-gnu | grep opencv")
+    # await run_command("ls -l /usr/lib/x86_64-linux-gnu | grep opencv")
+    await run_command("pwd")
+    print("----------")
+    await run_command("ls")
+    print("----------")
+
     return {
         "Hello": "This is Leaf Lore server! I'm ready to detect leaves!",
         "routes": {

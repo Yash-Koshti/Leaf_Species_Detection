@@ -36,8 +36,8 @@ class ModelService:
             f.write("./images/" + img_name)
 
         stdout, stderr = await self.__run_model_command()
-        print("Stdout:", stdout)
-        print("Stderr:", stderr)
+        print("Stdout:", self.__convert_byte_to_string(stdout))
+        print("Stderr:", self.__convert_byte_to_string(stderr))
 
         data = self.__read_result()
 
@@ -56,7 +56,7 @@ class ModelService:
         return predictions
 
     async def __run_model_command(self):
-        command = "./darknet detector test ./ai_model/model_v1/obj.data ./ai_model/model_v1/yolov4.cfg ./ai_model/model_v1/yolov4_v1.weights -dont_show -ext_output < source.txt > result.txt"
+        command = "../darknet/darknet detector test ./ai_model/model_v1/obj.data ./ai_model/model_v1/yolov4.cfg ./ai_model/model_v1/yolov4_v1.weights -dont_show -ext_output < source.txt > result.txt"
 
         loop = asyncio.get_running_loop()
 
@@ -105,6 +105,9 @@ class ModelService:
             predictions.append(prediction)
 
         return predictions
+
+    def __convert_byte_to_string(self, byte_string):
+        return "\n".join([line.decode("utf-8") for line in byte_string.split(b"\n")])
 
     def log_prediction(self, data):
         self.prediction_log_service.create_prediction_log(

@@ -52,7 +52,7 @@ RUN git clone https://github.com/AlexeyAB/darknet.git /darknet && \
     make
 
 # Copy Darknet executable to /app
-RUN cp /darknet/darknet /app/darknet
+# RUN cp /darknet/darknet /app/darknet
 
 # Set Darknet and OpenCV library paths
 ENV DARKNET_PATH=/darknet
