@@ -48,7 +48,8 @@ class ModelService:
             self.firebase.upload_to("Predictions", img_name)
             os.remove(img_name)
 
-        os.remove("images/" + img_name)
+        if os.path.exists("images/" + img_name):
+            os.remove("images/" + img_name)
 
         if os.path.exists("bad.list"):
             os.remove("bad.list")
