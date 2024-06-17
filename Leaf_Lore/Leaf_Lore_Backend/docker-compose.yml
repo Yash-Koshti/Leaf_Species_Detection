@@ -5,7 +5,7 @@ services:
     build: .
     container_name: Leaf_Lore_Backend
     ports:
-      - "8000:8000"
+      - "10000:10000"
     environment:
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
       ALGORITHM: ${ALGORITHM}

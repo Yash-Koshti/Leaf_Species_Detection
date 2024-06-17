@@ -73,10 +73,10 @@ create_dir()
 @app.get("/")
 async def read_root():
     # await run_command("ls -l /usr/lib/x86_64-linux-gnu | grep opencv")
-    await run_command("pwd")
-    print("----------")
-    await run_command("ls")
-    print("----------")
+    # await run_command("pwd")
+    # print("----------")
+    # await run_command("ls")
+    # print("----------")
 
     return {
         "Hello": "This is Leaf Lore server! I'm ready to detect leaves!",

@@ -58,6 +58,9 @@ RUN git clone https://github.com/AlexeyAB/darknet.git /darknet && \
 ENV DARKNET_PATH=/darknet
 ENV LD_LIBRARY_PATH=$DARKNET_PATH:$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu
 
+# Create a symbolic link from /app/data/labels to /darknet/data/labels
+RUN mkdir -p /app/data && ln -s /darknet/data/labels /app/data/labels
+
 # Return to the working directory
 WORKDIR /app
 
@@ -70,11 +73,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
-# Make port 8000 available to the world outside this container
-EXPOSE 8000
+# Make port 10000 available to the world outside this container
+EXPOSE 10000
 
 # Define environment variable
 ENV PYTHONUNBUFFERED=1
 
 # Run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "10000"]
