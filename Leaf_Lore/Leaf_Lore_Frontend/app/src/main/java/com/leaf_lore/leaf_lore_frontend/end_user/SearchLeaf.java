@@ -31,7 +31,7 @@ import com.leaf_lore.leaf_lore_frontend.R;
 import com.leaf_lore.leaf_lore_frontend.utils.ApiCalls;
 
 public class SearchLeaf extends AppCompatActivity {
-	private final int DELAY_TIME = 50000;
+	private final int DELAY_TIME = 1000;
 	StorageReference storageReference;
 	ProgressBar progressBar, searchingProgressBar;
 	ImageView imageView;
@@ -132,7 +132,7 @@ public class SearchLeaf extends AppCompatActivity {
 			@Override
 			public void run() {
 				if (!apiCalls.isModelPredictionFetched) {
-					apiCalls.fetchModelPrediction(pathString);
+//					apiCalls.fetchModelPrediction(pathString);
 					runPeriodicCheckForApi();
 				} else {
 					if (apiCalls.predictions.isEmpty()) {
@@ -140,11 +140,14 @@ public class SearchLeaf extends AppCompatActivity {
 						return;
 					}
 					Intent intent = new Intent(SearchLeaf.this, PredictionScreen.class);
-					intent.putExtra("image_path", apiCalls.predictions.get(0).image_path());
-					intent.putExtra("class_number", apiCalls.predictions.get(0).class_number());
-					intent.putExtra("common_name", apiCalls.predictions.get(0).common_name());
-					intent.putExtra("scientific_name", apiCalls.predictions.get(0).scientific_name());
-					intent.putExtra("confidence", apiCalls.predictions.get(0).confidence());
+//					intent.putExtra("image_path", apiCalls.predictions.get(0).image_path());
+//					intent.putExtra("class_number", apiCalls.predictions.get(0).class_number());
+//					intent.putExtra("common_name", apiCalls.predictions.get(0).common_name());
+//					intent.putExtra("scientific_name", apiCalls.predictions.get(0).scientific_name());
+//					intent.putExtra("confidence", apiCalls.predictions.get(0).confidence());
+
+					intent.putExtra("predictions", apiCalls.predictions);
+
 					startActivity(intent);
 					finish();
 				}

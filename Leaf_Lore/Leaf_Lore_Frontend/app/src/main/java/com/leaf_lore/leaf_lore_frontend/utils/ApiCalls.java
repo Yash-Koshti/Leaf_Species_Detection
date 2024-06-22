@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ApiCalls {
-	private static final String BASE_URL = "http://54.165.25.33:80";
+	private static final String BASE_URL = "http://23.22.90.217:80";
 	private static final String GET_TOKEN = "/auth/token";
 	private static final String USER_LOGIN = "/user/login";
 	private static final String USER_REGISTER = "/user/register";
