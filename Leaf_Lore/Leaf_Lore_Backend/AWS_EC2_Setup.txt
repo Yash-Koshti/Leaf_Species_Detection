@@ -1,0 +1,21 @@
+sudo yum update -y
+
+sudo amazon-linux-extras install docker
+
+sudo service docker start
+
+sudo usermod -a -G docker ec2-user
+
+sudo yum install -y git
+
+git clone https://github.com/Yash-Koshti/Leaf_Species_Detection.git
+
+cd Leaf_Species_Detection/Leaf_Lore/Leaf_Lore_Backend/
+
+git checkout docker
+
+cat > .env
+
+sudo docker build -t leaf_lore_backend:latest -f Dockerfile .
+
+sudo docker run -it -p 80:10000 --env-file .env leaf_lore_backend:latest
