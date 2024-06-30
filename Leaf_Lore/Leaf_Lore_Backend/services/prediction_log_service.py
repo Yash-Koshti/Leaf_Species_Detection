@@ -15,7 +15,7 @@ class PredictionLogService:
         self, prediction_log: PredictionLog
     ) -> PredictionLogSchema:
         prediction_log = PredictionLogSchema(
-            image_name=prediction_log.image_name,
+            image_name=prediction_log.image_path,
             user_id=prediction_log.user_id,
             specie_id=prediction_log.specie_id,
             shape_id=prediction_log.shape_id,

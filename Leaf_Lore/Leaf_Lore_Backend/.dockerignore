@@ -1,23 +1,23 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
 LeafLore_backend_flow_1.png
 manual_api_reqs.py
 
 .vscode/
-*.pyc
-__pycache__/
 
 \.env
 \.env.*
 
 seeder
 
-darknet
 darknet_repo
+darknet
 
 images/*
-
-*.weights
-result*.txt
-predictions.jpg
 
 train.txt
 source.txt
@@ -27,4 +27,7 @@ bad.list
 
 predictions.jpg
 
-*.weights
+yolov4_last.weights
+
+# Ignore Docker-related files
+Dockerfile

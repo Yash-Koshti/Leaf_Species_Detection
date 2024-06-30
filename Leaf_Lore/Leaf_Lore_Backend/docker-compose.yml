@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    container_name: Leaf_Lore_Backend
+    ports:
+      - "10000:10000"
+    environment:
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      ALGORITHM: ${ALGORITHM}
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      STORAGE_BUCKET: ${STORAGE_BUCKET}
+      PYTHONUNBUFFERED: 1
+      DARKNET_PATH: /darknet
+      LD_LIBRARY_PATH: /darknet:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+    volumes:
+      - .:/app

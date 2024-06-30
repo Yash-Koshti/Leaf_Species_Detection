@@ -44,7 +44,7 @@ class UserResponse(BaseModel, Generic[T]):
 
 class MappedImage(BaseModel):
     id: Optional[UUID] = None
-    image_name: Optional[str] = None
+    image_path: Optional[str] = None
     specie_id: Optional[UUID] = None
     user_id: Optional[UUID] = None
     shape_id: Optional[UUID] = None
@@ -156,7 +156,7 @@ class MarginResponse(BaseModel, Generic[T]):
 
 class PredictionLog(BaseModel):
     id: Optional[UUID] = None
-    image_name: Optional[str] = None
+    image_path: Optional[str] = None
     user_id: Optional[UUID] = None
     specie_id: Optional[UUID] = None
     shape_id: Optional[UUID] = None
@@ -185,6 +185,7 @@ class Predict(BaseModel):
 
 
 class Prediction(BaseModel):
+    image_path: str
     class_number: int
     common_name: str
     scientific_name: str

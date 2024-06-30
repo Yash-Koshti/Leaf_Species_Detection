@@ -3,7 +3,6 @@ import os
 import re
 import subprocess
 
-import cv2
 from firebase import Firebase
 from models import Prediction, Specie, User
 from schemas import PredictionLogSchema
@@ -37,25 +36,28 @@ class ModelService:
             f.write("./images/" + img_name)
 
         stdout, stderr = await self.__run_model_command()
-        print("Stdout:", stdout)
-        print("Stderr:", stderr)
+        print("Stdout:", self.__convert_byte_to_string(stdout))
+        print("Stderr:", self.__convert_byte_to_string(stderr))
 
         data = self.__read_result()
 
-        predictions = self.__get_predictions(data)
+        predictions = self.__get_predictions(data, img_name)
 
-        os.rename("predictions.jpg", img_name)
+        if os.path.exists("predictions.jpg"):
+            os.rename("predictions.jpg", img_name)
+            self.firebase.upload_to("Predictions", img_name)
+            os.remove(img_name)
 
-        self.firebase.upload_to("Predictions", img_name)
+        if os.path.exists("images/" + img_name):
+            os.remove("images/" + img_name)
 
-        os.remove("images/" + img_name)
-        os.remove(img_name)
-        os.remove("bad.list")
+        if os.path.exists("bad.list"):
+            os.remove("bad.list")
 
         return predictions
 
     async def __run_model_command(self):
-        command = "./darknet detector test ./ai_model/model_v1/obj.data ./ai_model/model_v1/yolov4.cfg ./ai_model/model_v1/yolov4_v1.weights -dont_show -ext_output < source.txt > result.txt"
+        command = "../darknet/darknet detector test ./ai_model/model_v1/obj.data ./ai_model/model_v1/yolov4.cfg ./ai_model/model_v1/yolov4_v1.weights -dont_show -ext_output < source.txt > result.txt"
 
         loop = asyncio.get_running_loop()
 
@@ -88,13 +90,14 @@ class ModelService:
                     data[matches] = pred_dict
             return data
 
-    def __get_predictions(self, data: dict):
+    def __get_predictions(self, data: dict, image_name: str):
         predictions = []
 
         for value in data.values():
             specie = Specie(class_number=value["class_number"])
             specie = self.specie_service.get_by_class_number(specie)
             prediction = Prediction(
+                image_path="Predictions/" + image_name,
                 class_number=value["class_number"],
                 common_name=specie.common_name,
                 scientific_name=specie.scientific_name,
@@ -103,6 +106,9 @@ class ModelService:
             predictions.append(prediction)
 
         return predictions
+
+    def __convert_byte_to_string(self, byte_string):
+        return "\n".join([line.decode("utf-8") for line in byte_string.split(b"\n")])
 
     def log_prediction(self, data):
         self.prediction_log_service.create_prediction_log(
