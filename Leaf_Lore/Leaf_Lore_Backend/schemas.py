@@ -93,11 +93,12 @@ class PredictionLogSchema(Base):
     __tablename__ = "PredictionLogs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
-    image_path = Column(String, unique=True, index=True)
+    image_path = Column(String, index=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey("Users.id"))
     specie_id = Column(UUID(as_uuid=True), ForeignKey("Species.id"))
-    shape_id = Column(UUID(as_uuid=True), ForeignKey("Shapes.id"))
-    apex_id = Column(UUID(as_uuid=True), ForeignKey("Apexes.id"))
-    margin_id = Column(UUID(as_uuid=True), ForeignKey("Margins.id"))
+    shape_id = Column(UUID(as_uuid=True), ForeignKey("Shapes.id"), nullable=True)
+    apex_id = Column(UUID(as_uuid=True), ForeignKey("Apexes.id"), nullable=True)
+    margin_id = Column(UUID(as_uuid=True), ForeignKey("Margins.id"), nullable=True)
+    confidence = Column(Integer, index=True)
     created_at = Column(String, default=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     updated_at = Column(String, default=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
