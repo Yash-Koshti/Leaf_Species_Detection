@@ -162,6 +162,7 @@ class PredictionLog(BaseModel):
     shape_id: Optional[UUID] = None
     apex_id: Optional[UUID] = None
     margin_id: Optional[UUID] = None
+    confidence: Optional[int] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 

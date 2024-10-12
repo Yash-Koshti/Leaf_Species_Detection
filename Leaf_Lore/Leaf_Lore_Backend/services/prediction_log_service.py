@@ -15,12 +15,13 @@ class PredictionLogService:
         self, prediction_log: PredictionLog
     ) -> PredictionLogSchema:
         prediction_log = PredictionLogSchema(
-            image_name=prediction_log.image_path,
+            image_path=prediction_log.image_path,
             user_id=prediction_log.user_id,
             specie_id=prediction_log.specie_id,
             shape_id=prediction_log.shape_id,
             apex_id=prediction_log.apex_id,
             margin_id=prediction_log.margin_id,
+            confidence=prediction_log.confidence,
         )
         try:
             self.db.add(prediction_log)

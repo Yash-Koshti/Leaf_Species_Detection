@@ -54,6 +54,8 @@ class ModelService:
         if os.path.exists("bad.list"):
             os.remove("bad.list")
 
+        self.__log_prediction(predictions, user)
+
         return predictions
 
     async def __run_model_command(self):
@@ -110,14 +112,18 @@ class ModelService:
     def __convert_byte_to_string(self, byte_string):
         return "\n".join([line.decode("utf-8") for line in byte_string.split(b"\n")])
 
-    def log_prediction(self, data):
-        self.prediction_log_service.create_prediction_log(
-            PredictionLogSchema(
-                image_name=data["image_name"],
-                user_id=data["user_id"],
-                specie_id=data["specie_id"],
-                shape_id=data["shape_id"],
-                apex_id=data["apex_id"],
-                margin_id=data["margin_id"],
+    def __log_prediction(self, data: list[Prediction], user: User):
+        for prediction in data:
+            specie = Specie(class_number=prediction.class_number)
+            specie = self.specie_service.get_by_class_number(specie)
+            self.prediction_log_service.create_prediction_log(
+                PredictionLogSchema(
+                    image_path=prediction.image_path,
+                    user_id=user.id,
+                    specie_id=specie.id,
+                    shape_id=None,
+                    apex_id=None,
+                    margin_id=None,
+                    confidence=prediction.confidence,
+                )
             )
-        )
